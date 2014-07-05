@@ -1,0 +1,105 @@
+#----------------------------------------------------------------------------------
+#
+# axi_slave_bfm Test Bench Scenario 1.1
+#
+#----------------------------------------------------------------------------------
+- MARCHAL:
+  -  SAY: >
+       axi_slave_bfm test bench scenario 1.1 start
+  -  TIMEOUT: ON
+- MASTER:
+  - WRITE : {ADDR: 0x0000FC80, SIZE: 4, BURST: INCR, ID: 0, DATA: [0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07], RESP: OKAY}
+  - SYNC  : {PORT: LOCAL, TIMEOUT: 1000}
+  - WRITE : {ADDR: 0x0000FC88, SIZE: 4, BURST: INCR, ID: 0, DATA: [0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F], RESP: OKAY}
+  - SYNC  : {PORT: LOCAL, TIMEOUT: 1000}
+  - READ  : {ADDR: 0x0000FC80, SIZE: 4, BURST: INCR, ID: 0, DATA: [0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07], RESP: OKAY}
+  - SYNC  : {PORT: LOCAL, TIMEOUT: 1000}
+  - READ  : {ADDR: 0x0000FC88, SIZE: 4, BURST: INCR, ID: 0, DATA: [0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F], RESP: OKAY}
+  - SYNC  : {PORT: LOCAL, TIMEOUT: 1000}
+- MARCHAL:
+  -  SAY: >
+       axi_slave_bfm test bench scenario 1.2 start
+  -  TIMEOUT: ON
+- MASTER:
+  - AW:
+    - VALID : 0
+      READY : 0
+    - WAIT  : 10
+    - ADDR  : 0x0000FC90
+      SIZE  : 4
+      LEN   : 4
+      VALID : 1
+      READY : 1
+    - WAIT  : {VALID: 1, READY: 1}
+    - VALID : 0
+      READY : 0
+  - W:
+    - WAIT  : {AWVALID: 1, AWREADY: 1}
+    - DATA  : 0x13121110
+      LAST  : 0
+      VALID : 1
+    - WAIT  : {VALID: 1, READY : 1}
+    - DATA  : 0x17161514
+      LAST  : 0
+      VALID : 1
+    - WAIT  : {VALID: 1, READY : 1}
+    - DATA  : 0x1B1A1918
+      LAST  : 0
+      VALID : 1
+    - WAIT  : {VALID: 1, READY : 1}
+    - DATA  : 0x1F1E1D1C
+      LAST  : 1
+      VALID : 1
+    - WAIT  : {VALID: 1, READY : 1}
+    - DATA  : 0
+      LAST  : 0
+      VALID : 0
+  - B:
+    - RESP  : OKAY
+      VALID : 0
+      READY : 0
+    - WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}
+    - WAIT  : 5
+    - VALID : 1
+      READY : 1
+    - WAIT  : {BVALID: 1, BREADY: 1}
+    - VALID : 0
+      READY : 0
+  - AW:
+    - VALID : 0
+      READY : 0
+    - WAIT  : 0
+    - ADDR  : 0x0000FCA0
+      SIZE  : 4
+      LEN   : 1
+      VALID : 1
+      READY : 1
+    - WAIT  : {VALID: 1, READY: 1}
+    - VALID : 0
+      READY : 0
+  - W:
+    - WAIT  : 0
+    - DATA  : 0x76543210
+      LAST  : 1
+      VALID : 1
+      READY : 1
+    - WAIT  : {VALID: 1, READY : 1}
+    - DATA  : 0
+      LAST  : 0
+      VALID : 0
+      READY : 0
+  - B:
+    - RESP  : OKAY
+      VALID : 0
+      READY : 0
+    - WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}
+    - VALID : 1
+      READY : 1
+    - WAIT  : {BVALID: 1, BREADY: 1}
+    - VALID : 0
+      READY : 0
+---
+- - [MARCHAL,MASTER]
+  - SAY: >
+       axi_slave_bfm test bench scenario 1.1 all done
+---

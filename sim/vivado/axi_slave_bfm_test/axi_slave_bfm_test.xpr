@@ -131,13 +131,13 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../../src/axi_slave_bfm_test.snr"/>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
         <Option Name="TopModule" Val="axi_slave_bfm_test_bench"/>
         <Option Name="TopLib" Val="xil_defaultlib"/>
         <Option Name="TopAutoSet" Val="TRUE"/>
         <Option Name="SrcSet" Val="sources_1"/>
+        <Generic Name="SCENARIO_FILE" Val="../../../../../../src/axi_slave_bfm_test.snr"/>
       </Config>
     </FileSet>
   </FileSets>
