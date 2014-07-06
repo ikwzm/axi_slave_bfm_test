@@ -36,6 +36,6 @@ axi_slave_bfm_test.snr にテスト用シナリオが記述されています。
 
 ###ライセンス###
 
-axi_slave_BFM.vhd および sync_fifo.vhd の使用に関しては、FPGAの部屋(http://marsee101.blog19.fc2.com/blog-entry-2644.html)で確認してください。
+axi_slave_BFM.vhd および sync_fifo.vhd の使用に関しては、FPGAの部屋(http://marsee101.blog19.fc2.com/blog-entry-2862.html )で確認してください。
 
 Dummy_Plug および axi_slave_bfm_test_bench.vhd に関しては、二条項BSDライセンス (2-clause BSD license) で公開しています。
