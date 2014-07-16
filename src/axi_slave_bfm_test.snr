@@ -92,7 +92,7 @@
     - RESP  : OKAY
       VALID : 0
       READY : 0
-    - WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}
+    - WAIT  : 1
     - VALID : 1
       READY : 1
     - WAIT  : {BVALID: 1, BREADY: 1}
