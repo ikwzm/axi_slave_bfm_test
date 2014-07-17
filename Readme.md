@@ -32,7 +32,8 @@ Run Simulation > Run Behavioral Simulation
 
 axi_slave_bfm_test.snr にテスト用シナリオが記述されています。   
 
-現時点では axi_slave_BFM がマスターからのBREADY信号をチェックしていない事を突いた意地悪なシナリオを仕込んでいます。
+~~現時点では axi_slave_BFM がマスターからのBREADY信号をチェックしていない事を突いた意地悪なシナリオを仕込んでいます。~~
+2014年7月17日時点では marsee さんによりこの不具合は修正されています。
 
 ###ライセンス###
 

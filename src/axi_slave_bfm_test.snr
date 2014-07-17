@@ -1,6 +1,6 @@
 #----------------------------------------------------------------------------------
 #
-# axi_slave_bfm Test Bench Scenario 1.1
+# axi_slave_bfm Test Bench Scenario 1
 #
 #----------------------------------------------------------------------------------
 - MARCHAL:
@@ -16,6 +16,10 @@
   - SYNC  : {PORT: LOCAL, TIMEOUT: 1000}
   - READ  : {ADDR: 0x0000FC88, SIZE: 4, BURST: INCR, ID: 0, DATA: [0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F], RESP: OKAY}
   - SYNC  : {PORT: LOCAL, TIMEOUT: 1000}
+- - [MARCHAL,MASTER]
+  - SAY: >
+       axi_slave_bfm test bench scenario 1.1 done
+---
 - MARCHAL:
   -  SAY: >
        axi_slave_bfm test bench scenario 1.2 start
@@ -23,16 +27,15 @@
 - MASTER:
   - AW:
     - VALID : 0
-      READY : 0
     - WAIT  : 10
     - ADDR  : 0x0000FC90
       SIZE  : 4
       LEN   : 4
+      ID    : 1
+      BURST : INCR
       VALID : 1
-      READY : 1
     - WAIT  : {VALID: 1, READY: 1}
     - VALID : 0
-      READY : 0
   - W:
     - WAIT  : {AWVALID: 1, AWREADY: 1}
     - DATA  : 0x13121110
@@ -55,28 +58,24 @@
       LAST  : 0
       VALID : 0
   - B:
-    - RESP  : OKAY
-      VALID : 0
-      READY : 0
+    - READY : 0
     - WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}
     - WAIT  : 5
-    - VALID : 1
-      READY : 1
+    - READY : 1
     - WAIT  : {BVALID: 1, BREADY: 1}
-    - VALID : 0
-      READY : 0
+    - CHECK : {RESP: OKAY, ID: 1}
+    - READY : 0
   - AW:
     - VALID : 0
-      READY : 0
     - WAIT  : 0
     - ADDR  : 0x0000FCA0
       SIZE  : 4
       LEN   : 1
+      ID    : 0
+      BURST : INCR
       VALID : 1
-      READY : 1
     - WAIT  : {VALID: 1, READY: 1}
     - VALID : 0
-      READY : 0
   - W:
     - WAIT  : 0
     - DATA  : 0x76543210
@@ -89,17 +88,14 @@
       VALID : 0
       READY : 0
   - B:
-    - RESP  : OKAY
-      VALID : 0
-      READY : 0
+    - READY : 0
     - WAIT  : 1
-    - VALID : 1
-      READY : 1
+    - READY : 1
     - WAIT  : {BVALID: 1, BREADY: 1}
-    - VALID : 0
-      READY : 0
+    - CHECK : {RESP: OKAY, ID: 0}
+    - READY : 0
 ---
 - - [MARCHAL,MASTER]
   - SAY: >
-       axi_slave_bfm test bench scenario 1.1 all done
+       axi_slave_bfm test bench scenario 1.2 done
 ---

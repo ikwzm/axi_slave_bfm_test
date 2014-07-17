@@ -1,13 +1,14 @@
 -----------------------------------------------------------------------------
 --
--- AXI Masterç”¨ Slave Bus Function Mode (BFM)
+-- AXI Master—p Slave Bus Function Mode (BFM)
 -- axi_slave_BFM.vhd
 --
 -----------------------------------------------------------------------------
--- 2012/02/25 : S_AXI_AWBURSTï¼1 (INCR) ã«ã®ã¿å¯¾å¿œã€AWSIZE, ARSIZE = 000 (1byte), 001 (2bytes), 010 (4bytes) ã®ã¿å¯¾å¿œã€‚
--- 2012/07/04 : READ_ONLY_TRANSACTION ã‚’è¿½åŠ ã€‚Readæ©Ÿèƒ½ã®ã¿ã§ã‚‚+1ã—ãŸãƒ‡ãƒ¼ã‚¿ã‚’å‡ºåŠ›ã™ã‚‹ã“ã¨ãŒå‡ºæ¥ã‚‹ã‚ˆã†ã«å¤‰æ›´ã—ãŸã€‚
--- sync_fifo ã‚’ä½¿ç”¨ã—ãŸã‚ªãƒ¼ãƒãƒ¼ãƒ©ãƒƒãƒ—å¯¾å¿œç‰ˆ
--- 2014/07/04 : M_AXIã‚’ã‚¹ãƒ¬ãƒ¼ãƒ–ã«å¯¾å¿œã—ãŸåå‰ã®S_AXIã«å¤‰æ›´
+-- 2012/02/25 : S_AXI_AWBURST1 (INCR) ‚É‚Ì‚İ‘Î‰AAWSIZE, ARSIZE = 000 (1byte), 001 (2bytes), 010 (4bytes) ‚Ì‚İ‘Î‰B
+-- 2012/07/04 : READ_ONLY_TRANSACTION ‚ğ’Ç‰ÁBRead‹@”\‚Ì‚İ‚Å‚à+1‚µ‚½ƒf[ƒ^‚ğo—Í‚·‚é‚±‚Æ‚ªo—ˆ‚é‚æ‚¤‚É•ÏX‚µ‚½B
+-- sync_fifo ‚ğg—p‚µ‚½ƒI[ƒo[ƒ‰ƒbƒv‘Î‰”Å
+-- 2014/07/04 : M_AXI‚ğƒXƒŒ[ƒu‚É‘Î‰‚µ‚½–¼‘O‚ÌS_AXI‚É•ÏX
+-- 2014/07/16 : Write Respose Channel ‚É sync_fifo ‚ğg—p‚µ‚½
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -15,26 +16,26 @@ use ieee.numeric_std.all;
 use ieee.std_logic_misc.all;
 
 package m_seq_bfm_pack is
-    function M_SEQ16_BFM_F(mseq16in : std_logic_vector
-        )return std_logic_vector;
+	function M_SEQ16_BFM_F(mseq16in : std_logic_vector
+		)return std_logic_vector;
 end package m_seq_bfm_pack;
 package body m_seq_bfm_pack is
-    function M_SEQ16_BFM_F(mseq16in : std_logic_vector
-        )return std_logic_vector is
-            variable mseq16 : std_logic_vector(15 downto 0);
-            variable xor_result : std_logic;
-    begin
-        xor_result := mseq16in(15) xor mseq16in(12) xor mseq16in(10) xor mseq16in(8) xor mseq16in(7) xor mseq16in(6) xor mseq16in(3) xor mseq16in(2);
-        mseq16 := mseq16in(14 downto 0) & xor_result;
-        return mseq16;
-    end M_SEQ16_BFM_F;
+	function M_SEQ16_BFM_F(mseq16in : std_logic_vector
+		)return std_logic_vector is
+			variable mseq16 : std_logic_vector(15 downto 0);
+			variable xor_result : std_logic;
+	begin
+		xor_result := mseq16in(15) xor mseq16in(12) xor mseq16in(10) xor mseq16in(8) xor mseq16in(7) xor mseq16in(6) xor mseq16in(3) xor mseq16in(2);
+		mseq16 := mseq16in(14 downto 0) & xor_result;
+		return mseq16;
+	end M_SEQ16_BFM_F;
 end m_seq_bfm_pack;
 
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
-use ieee.std_logic_arith.all;
+use ieee.numeric_std.all;
+use ieee.std_logic_misc.all;
 use IEEE.math_real.all;
 
 library work;
@@ -45,23 +46,23 @@ use work.m_seq_bfm_pack.all;
 
 entity axi_slave_bfm is
   generic (
-    C_S_AXI_ID_WIDTH             : integer := 1;
-    C_S_AXI_ADDR_WIDTH           : integer := 32;
-    C_S_AXI_DATA_WIDTH           : integer := 32;
-    C_S_AXI_AWUSER_WIDTH    : integer := 1;
-    C_S_AXI_ARUSER_WIDTH    : integer := 1;
-    C_S_AXI_WUSER_WIDTH     : integer := 1;
-    C_S_AXI_RUSER_WIDTH     : integer := 1;
-    C_S_AXI_BUSER_WIDTH      : integer := 1;
-    
-    C_S_AXI_TARGET            : integer := 0;
-    C_OFFSET_WIDTH            : integer := 10; -- å‰²ã‚Šå½“ã¦ã‚‹RAMã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã®ãƒ“ãƒƒãƒˆå¹…
-    C_S_AXI_BURST_LEN        : integer := 256;
-    
-    WRITE_RANDOM_WAIT        : integer := 1; -- Write Transaction ã®ãƒ‡ãƒ¼ã‚¿è»¢é€ã®æ™‚ã«ãƒ©ãƒ³ãƒ€ãƒ ãªWaitã‚’ç™ºç”Ÿã•ã›ã‚‹=1, Waitã—ãªã„=0
-    READ_RANDOM_WAIT        : integer := 0; -- Read Transaction ã®ãƒ‡ãƒ¼ã‚¿è»¢é€ã®æ™‚ã«ãƒ©ãƒ³ãƒ€ãƒ ãªWaitã‚’ç™ºç”Ÿã•ã›ã‚‹=1, Waitã—ãªã„=0
-    READ_DATA_IS_INCREMENT    : integer := 0; -- Readãƒˆãƒ©ãƒ³ã‚¶ã‚¯ã‚·ãƒ§ãƒ³ã§RAMã®å†…å®¹ã‚’Readã™ã‚‹ = 0ï¼ˆRAMã«Writeã—ãŸã‚‚ã®ã‚’Readã™ã‚‹ï¼‰ã€Readãƒ‡ãƒ¼ã‚¿ã‚’+1ã™ã‚‹ = 1ï¼ˆãƒ‡ãƒ¼ã‚¿ã¯+1ã—ãŸãƒ‡ãƒ¼ã‚¿ã‚’Readãƒ‡ãƒ¼ã‚¿ã¨ã—ã¦ä½¿ç”¨ã™ã‚‹
-    RUNDAM_BVALID_WAIT        : integer := 0    -- Write Data Transaction ãŒçµ‚äº†ã—ãŸå¾Œã§ã€BVALID ã‚’ãƒ©ãƒ³ãƒ€ãƒ ã«Waitã™ã‚‹ = 1ã€BVALID ã‚’ãƒ©ãƒ³ãƒ€ãƒ ã«Waitã—ãªã„ = 0, 31 ~ 0 ã‚¯ãƒ­ãƒƒã‚¯ã®Wait
+    C_S_AXI_ID_WIDTH   	  	: integer := 1;
+    C_S_AXI_ADDR_WIDTH 	  	: integer := 32;
+    C_S_AXI_DATA_WIDTH 	  	: integer := 32;
+    C_S_AXI_AWUSER_WIDTH	: integer := 1;
+    C_S_AXI_ARUSER_WIDTH	: integer := 1;
+    C_S_AXI_WUSER_WIDTH 	: integer := 1;
+    C_S_AXI_RUSER_WIDTH 	: integer := 1;
+    C_S_AXI_BUSER_WIDTH  	: integer := 1;
+	
+	C_S_AXI_TARGET			: integer := 0;
+	C_OFFSET_WIDTH			: integer := 10; -- Š„‚è“–‚Ä‚éRAM‚ÌƒAƒhƒŒƒX‚Ìƒrƒbƒg•
+	C_S_AXI_BURST_LEN		: integer := 256;
+	
+	WRITE_RANDOM_WAIT		: integer := 1; -- Write Transaction ‚Ìƒf[ƒ^“]‘—‚Ì‚Éƒ‰ƒ“ƒ_ƒ€‚ÈWait‚ğ”­¶‚³‚¹‚é=1, Wait‚µ‚È‚¢=0
+	READ_RANDOM_WAIT		: integer := 0; -- Read Transaction ‚Ìƒf[ƒ^“]‘—‚Ì‚Éƒ‰ƒ“ƒ_ƒ€‚ÈWait‚ğ”­¶‚³‚¹‚é=1, Wait‚µ‚È‚¢=0
+	READ_DATA_IS_INCREMENT	: integer := 0; -- Readƒgƒ‰ƒ“ƒUƒNƒVƒ‡ƒ“‚ÅRAM‚Ì“à—e‚ğRead‚·‚é = 0iRAM‚ÉWrite‚µ‚½‚à‚Ì‚ğRead‚·‚éjAReadƒf[ƒ^‚ğ+1‚·‚é = 1iƒf[ƒ^‚Í+1‚µ‚½ƒf[ƒ^‚ğReadƒf[ƒ^‚Æ‚µ‚Äg—p‚·‚é
+	RUNDAM_BVALID_WAIT		: integer := 0	-- Write Data Transaction ‚ªI—¹‚µ‚½Œã‚ÅABVALID ‚ğƒ‰ƒ“ƒ_ƒ€‚ÉWait‚·‚é = 1ABVALID ‚ğƒ‰ƒ“ƒ_ƒ€‚ÉWait‚µ‚È‚¢ = 0, 31 ~ 0 ƒNƒƒbƒN‚ÌWait
     );
   port(
     -- System Signals
@@ -126,42 +127,54 @@ end axi_slave_bfm;
 
 architecture implementation of axi_slave_bfm is
 
-constant    AxBURST_FIXED    : std_logic_vector := "00";
-constant    AxBURST_INCR    : std_logic_vector := "01";
-constant    AxBURST_WRAP    : std_logic_vector := "10";
+constant	AxBURST_FIXED	: std_logic_vector := "00";
+constant	AxBURST_INCR	: std_logic_vector := "01";
+constant	AxBURST_WRAP	: std_logic_vector := "10";
 
-constant    RESP_OKAY        : std_logic_vector := "00";
-constant    RESP_EXOKAY        : std_logic_vector := "01";
-constant    RESP_SLVERR        : std_logic_vector := "10";
-constant    RESP_DECERR        : std_logic_vector := "11";
+constant	RESP_OKAY		: std_logic_vector := "00";
+constant	RESP_EXOKAY		: std_logic_vector := "01";
+constant	RESP_SLVERR		: std_logic_vector := "10";
+constant	RESP_DECERR		: std_logic_vector := "11";
 
-constant    DATA_BUS_BYTES     : natural := C_S_AXI_DATA_WIDTH/8; -- ãƒ‡ãƒ¼ã‚¿ãƒã‚¹ã®ãƒ“ãƒƒãƒˆå¹…
-constant    ADD_INC_OFFSET    : natural := natural(log(real(DATA_BUS_BYTES), 2.0));
+constant	DATA_BUS_BYTES 	: natural := C_S_AXI_DATA_WIDTH/8; -- ƒf[ƒ^ƒoƒX‚Ìƒrƒbƒg•
+constant	ADD_INC_OFFSET	: natural := natural(log(real(DATA_BUS_BYTES), 2.0));
+
+-- fifo depth for address
+constant	AD_FIFO_DEPTH			: natural := 16;
 
 -- wad_fifo field
-constant    WAD_FIFO_AWID_HIGH        : natural := 37;
-constant    WAD_FIFO_AWID_LOW        : natural := 37;
-constant    WAD_FIFO_AWBURST_HIGH    : natural := 36;
-constant    WAD_FIFO_AWBURST_LOW    : natural := 35;
-constant    WAD_FIFO_AWSIZE_HIGH    : natural := 34;
-constant    WAD_FIFO_AWSIZE_LOW        : natural := 32;
-constant    WAD_FIFO_ADDR_HIGH        : natural := 31;
-constant    WAD_FIFO_ADDR_LOW        : natural := 0;
+constant	WAD_FIFO_WIDTH			: natural := C_S_AXI_ADDR_WIDTH+5+C_S_AXI_ID_WIDTH-1+1;
+constant	WAD_FIFO_AWID_HIGH		: natural := C_S_AXI_ADDR_WIDTH+5+C_S_AXI_ID_WIDTH-1;
+constant	WAD_FIFO_AWID_LOW		: natural := C_S_AXI_ADDR_WIDTH+5;
+constant	WAD_FIFO_AWBURST_HIGH	: natural := C_S_AXI_ADDR_WIDTH+4;
+constant	WAD_FIFO_AWBURST_LOW	: natural := C_S_AXI_ADDR_WIDTH+3;
+constant	WAD_FIFO_AWSIZE_HIGH	: natural := C_S_AXI_ADDR_WIDTH+2;
+constant	WAD_FIFO_AWSIZE_LOW		: natural := C_S_AXI_ADDR_WIDTH;
+constant	WAD_FIFO_ADDR_HIGH		: natural := C_S_AXI_ADDR_WIDTH-1;
+constant	WAD_FIFO_ADDR_LOW		: natural := 0;
+
+-- wres_fifo field
+constant	WRES_FIFO_WIDTH			: natural := 2+C_S_AXI_ID_WIDTH-1+1;
+constant	WRES_FIFO_AWID_HIGH		: natural := 2+C_S_AXI_ID_WIDTH-1;
+constant	WRES_FIFO_AWID_LOW		: natural := 2;
+constant	WRES_FIFO_AWBURST_HIGH	: natural := 1;
+constant	WRES_FIFO_AWBURST_LOW	: natural := 0;
 
 -- rad_fifo field
-constant    RAD_FIFO_ARID_HIGH        : natural := 45;
-constant    RAD_FIFO_ARID_LOW        : natural := 45;
-constant    RAD_FIFO_ARBURST_HIGH    : natural := 44;
-constant    RAD_FIFO_ARBURST_LOW    : natural := 43;
-constant    RAD_FIFO_ARSIZE_HIGH    : natural := 42;
-constant    RAD_FIFO_ARSIZE_LOW        : natural := 40;
-constant    RAD_FIFO_ARLEN_HIGH        : natural := 39;
-constant    RAD_FIFO_ARLEN_LOW        : natural := 32;
-constant    RAD_FIFO_ADDR_HIGH        : natural := 31;
-constant    RAD_FIFO_ADDR_LOW        : natural := 0;
+constant	RAD_FIFO_WIDTH			: natural := C_S_AXI_ADDR_WIDTH+13+C_S_AXI_ID_WIDTH-1+1;
+constant	RAD_FIFO_ARID_HIGH		: natural := C_S_AXI_ADDR_WIDTH+13+C_S_AXI_ID_WIDTH-1;
+constant	RAD_FIFO_ARID_LOW		: natural := C_S_AXI_ADDR_WIDTH+13;
+constant	RAD_FIFO_ARBURST_HIGH	: natural := C_S_AXI_ADDR_WIDTH+12;
+constant	RAD_FIFO_ARBURST_LOW	: natural := C_S_AXI_ADDR_WIDTH+11;
+constant	RAD_FIFO_ARSIZE_HIGH	: natural := C_S_AXI_ADDR_WIDTH+10;
+constant	RAD_FIFO_ARSIZE_LOW		: natural := C_S_AXI_ADDR_WIDTH+8;
+constant	RAD_FIFO_ARLEN_HIGH		: natural := C_S_AXI_ADDR_WIDTH+7;
+constant	RAD_FIFO_ARLEN_LOW		: natural := C_S_AXI_ADDR_WIDTH;
+constant	RAD_FIFO_ADDR_HIGH		: natural := C_S_AXI_ADDR_WIDTH-1;
+constant	RAD_FIFO_ADDR_LOW		: natural := 0;
 
--- RAMã®ç”Ÿæˆ
-constant    SLAVE_ADDR_NUMBER    : integer := 2**(C_OFFSET_WIDTH - ADD_INC_OFFSET);
+-- RAM‚Ì¶¬
+constant	SLAVE_ADDR_NUMBER	: integer := 2**(C_OFFSET_WIDTH - ADD_INC_OFFSET);
 type ram_array_def is array (SLAVE_ADDR_NUMBER-1 downto 0) of std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 signal ram_array : ram_array_def := (others => (others => '0'));
 
@@ -173,23 +186,27 @@ signal wradr_cs : write_address_state;
 signal wrdat_cs : write_data_state;
 signal wrres_cs : write_response_state;
 signal addr_inc_step_wr : integer := 1;
-signal awready         : std_logic;
-signal wr_addr         : std_logic_vector(C_OFFSET_WIDTH-1 downto 0);
-signal wr_bid         : std_logic_vector(C_S_AXI_ID_WIDTH-1 downto 0);
-signal wr_bresp     : std_logic_vector(1 downto 0);
-signal wr_bvalid     : std_logic;
-signal m_seq16_wr    : std_logic_vector(15 downto 0);
-signal wready        : std_logic;
+signal awready 		: std_logic;
+signal wr_addr 		: std_logic_vector(C_OFFSET_WIDTH-1 downto 0);
+signal wr_bvalid 	: std_logic;
+signal m_seq16_wr	: std_logic_vector(15 downto 0);
+signal wready		: std_logic;
 type wready_state is (idle_wready, assert_wready, deassert_wready);
 signal cs_wready : wready_state;
 signal cdc_we : std_logic;
 signal wad_fifo_full, wad_fifo_empty : std_logic;
 signal wad_fifo_almost_full, wad_fifo_almost_empty : std_logic;
 signal wad_fifo_rd_en : std_logic;
-signal wad_fifo_din : std_logic_vector(37 downto 0);
-signal wad_fifo_dout : std_logic_vector(37 downto 0);
-signal m_seq16_wr_res    : std_logic_vector(15 downto 0);
+signal wad_fifo_din : std_logic_vector(WAD_FIFO_WIDTH-1 downto 0);
+signal wad_fifo_dout : std_logic_vector(WAD_FIFO_WIDTH-1 downto 0);
+signal m_seq16_wr_res	: std_logic_vector(15 downto 0);
 signal wr_resp_cnt : std_logic_vector(4 downto 0);
+signal wres_fifo_wr_en : std_logic;
+signal wres_fifo_full, wres_fifo_empty : std_logic;
+signal wres_fifo_almost_full, wres_fifo_almost_empty : std_logic;
+signal wres_fifo_rd_en : std_logic;
+signal wres_fifo_din : std_logic_vector(WRES_FIFO_WIDTH-1 downto 0);
+signal wres_fifo_dout : std_logic_vector(WRES_FIFO_WIDTH-1 downto 0);
 
 -- for read transaction
 type read_address_state is (idle_rda, arr_accept);
@@ -199,12 +216,12 @@ signal rdadr_cs : read_address_state;
 signal rddat_cs : read_data_state;
 signal rdlast : read_last_state;
 signal addr_inc_step_rd : integer := 1;
-signal arready         : std_logic;
-signal rd_addr         : std_logic_vector(C_OFFSET_WIDTH-1 downto 0);
-signal rd_axi_count    : std_logic_vector(7 downto 0);
-signal rvalid        : std_logic;
-signal rlast        : std_logic;
-signal m_seq16_rd    : std_logic_vector(15 downto 0);
+signal arready 		: std_logic;
+signal rd_addr 		: std_logic_vector(C_OFFSET_WIDTH-1 downto 0);
+signal rd_axi_count	: std_logic_vector(7 downto 0);
+signal rvalid		: std_logic;
+signal rlast		: std_logic;
+signal m_seq16_rd	: std_logic_vector(15 downto 0);
 type rvalid_state is (idle_rvalid, assert_rvalid, deassert_rvalid);
 signal cs_rvalid : rvalid_state;
 signal read_data_count : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
@@ -213,240 +230,233 @@ signal reset_1d, reset_2d, reset : std_logic := '1';
 signal rad_fifo_full, rad_fifo_empty : std_logic;
 signal rad_fifo_almost_full, rad_fifo_almost_empty : std_logic;
 signal rad_fifo_rd_en : std_logic;
-signal rad_fifo_din : std_logic_vector(45 downto 0);
-signal rad_fifo_dout : std_logic_vector(45 downto 0);
+signal rad_fifo_din : std_logic_vector(RAD_FIFO_WIDTH-1 downto 0);
+signal rad_fifo_dout : std_logic_vector(RAD_FIFO_WIDTH-1 downto 0);
 
 component sync_fifo generic (
-    constant    C_MEMORY_SIZE     : integer := 512;    -- Word (not byte), 2ã®nä¹—
-    constant    DATA_BUS_WIDTH    : integer := 32        -- RAM Data Width
+	constant	C_MEMORY_SIZE 	: integer := 512;	-- Word (not byte), 2‚Ìnæ
+	constant	DATA_BUS_WIDTH	: integer := 32		-- RAM Data Width
 );
  port (
-    clk                : in    std_logic;
-    rst                : in     std_logic;
-    wr_en            : in     std_logic;
-    din                : in     std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
-    full            : out     std_logic;
-    almost_full     : out     std_logic;
-    rd_en            : in     std_logic;
-    dout            : out    std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
-    empty            : out    std_logic;
-    almost_empty    : out    std_logic
+	clk				: in	std_logic;
+	rst				: in 	std_logic;
+	wr_en			: in 	std_logic;
+	din				: in 	std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
+	full			: out 	std_logic;
+	almost_full 	: out 	std_logic;
+	rd_en			: in 	std_logic;
+	dout			: out	std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
+	empty			: out	std_logic;
+	almost_empty	: out	std_logic
 );
 end component;
 
 begin
-    -- ARESETN ã‚’ACLK ã§åŒæœŸåŒ–
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            reset_1d <= not ARESETN;
-            reset_2d <= reset_1d;
-        end if;
-    end process;
-    reset <= reset_2d;
-    
-    -- AXI4ãƒã‚¹ Write Address State Machine
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                wradr_cs <= idle_wrad;
-                awready <= '0';
-            else
-                case (wradr_cs) is
-                    when idle_wrad =>
-                        if S_AXI_AWVALID='1' and wad_fifo_full='0' then -- S_AXI_AWVALID ãŒ1ã«ã‚¢ã‚µãƒ¼ãƒˆã•ã‚ŒãŸ
-                            wradr_cs <= awr_accept;
-                            awready <= '1';
-                        end if;
-                    when awr_accept => -- S_AXI_AWREADY ã‚’ã‚¢ã‚µãƒ¼ãƒˆ
-                        wradr_cs <= idle_wrad;
-                        awready <= '0';
-                end case;
-            end if;
-        end if;
-    end process;
-    S_AXI_AWREADY <= awready;
-    
-    -- S_AXI_AWID & S_AXI_AWBURST & S_AXI_AWSIZE & S_AXI_AWADDRã€€ã‚’ä¿å­˜ã—ã¦ãŠãåŒæœŸFIFO
-    wad_fifo_din <= (S_AXI_AWID & S_AXI_AWBURST & S_AXI_AWSIZE & S_AXI_AWADDR);
+	-- ARESETN ‚ğACLK ‚Å“¯Šú‰»
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			reset_1d <= not ARESETN;
+			reset_2d <= reset_1d;
+		end if;
+	end process;
+	reset <= reset_2d;
+	
+	-- AXI4ƒoƒX Write Address State Machine
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			if reset='1' then
+				wradr_cs <= idle_wrad;
+				awready <= '0';
+			else
+				case (wradr_cs) is
+					when idle_wrad =>
+						if S_AXI_AWVALID='1' and wad_fifo_full='0' and wres_fifo_full='0' then -- S_AXI_AWVALID ‚ª1‚ÉƒAƒT[ƒg‚³‚ê‚½
+							wradr_cs <= awr_accept;
+							awready <= '1';
+						end if;
+					when awr_accept => -- S_AXI_AWREADY ‚ğƒAƒT[ƒg
+						wradr_cs <= idle_wrad;
+						awready <= '0';
+				end case;
+			end if;
+		end if;
+	end process;
+	S_AXI_AWREADY <= awready;
+	
+	-- S_AXI_AWID & S_AXI_AWBURST & S_AXI_AWSIZE & S_AXI_AWADDR@‚ğ•Û‘¶‚µ‚Ä‚¨‚­“¯ŠúFIFO
+	wad_fifo_din <= (S_AXI_AWID & S_AXI_AWBURST & S_AXI_AWSIZE & S_AXI_AWADDR);
 
-    wad_fifo : sync_fifo generic map(
-        C_MEMORY_SIZE => 16,
-        DATA_BUS_WIDTH => 38
-    ) port map (
-        clk =>            ACLK,
-        rst =>            reset,
-        wr_en =>         awready,
-        din =>            wad_fifo_din,
-        full =>            wad_fifo_full,
-        almost_full =>    wad_fifo_almost_full,
-        rd_en =>        wad_fifo_rd_en,
-        dout =>            wad_fifo_dout,
-        empty =>         wad_fifo_empty,
-        almost_empty =>    wad_fifo_almost_empty
-    );
-    wad_fifo_rd_en <= '1' when wready='1' and S_AXI_WVALID='1' and S_AXI_WLAST='1' else '0';
+	wad_fifo : sync_fifo generic map(
+		C_MEMORY_SIZE => AD_FIFO_DEPTH,
+		DATA_BUS_WIDTH => WAD_FIFO_WIDTH
+	) port map (
+		clk =>			ACLK,
+		rst =>			reset,
+		wr_en => 		awready,
+		din =>			wad_fifo_din,
+		full =>			wad_fifo_full,
+		almost_full =>	wad_fifo_almost_full,
+		rd_en =>		wad_fifo_rd_en,
+		dout =>			wad_fifo_dout,
+		empty => 		wad_fifo_empty,
+		almost_empty =>	wad_fifo_almost_empty
+	);
+	wad_fifo_rd_en <= '1' when wready='1' and S_AXI_WVALID='1' and S_AXI_WLAST='1' else '0';
 
-    -- AXI4ãƒã‚¹ Write Data State Machine
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then
-            if reset='1' then
-                wrdat_cs <= idle_wrdt;
-            else
-                case( wrdat_cs ) is
-                    when idle_wrdt =>
-                        if wad_fifo_empty='0' then -- AXI Write ã‚¢ãƒ‰ãƒ¬ã‚¹è»¢é€ã®æ®‹ã‚ŠãŒ1å€‹ä»¥ä¸Šã‚ã‚‹
-                            wrdat_cs <= wr_burst;
-                        end if;
-                    when wr_burst => -- Writeãƒ‡ãƒ¼ã‚¿ã®è»¢é€
-                        if S_AXI_WLAST='1' and S_AXI_WVALID='1' and wready='1' then -- Write Transaction çµ‚äº†
-                            wrdat_cs <= idle_wrdt;
-                        end if;
-                    when others =>
-                
-                end case ;
-            end if;
-        end if;
-    end process;
+	-- AXI4ƒoƒX Write Data State Machine
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then
+			if reset='1' then
+				wrdat_cs <= idle_wrdt;
+			else
+				case( wrdat_cs ) is
+					when idle_wrdt =>
+						if wad_fifo_empty='0' then -- AXI Write ƒAƒhƒŒƒX“]‘—‚Ìc‚è‚ª1ŒÂˆÈã‚ ‚é
+							wrdat_cs <= wr_burst;
+						end if;
+					when wr_burst => -- Writeƒf[ƒ^‚Ì“]‘—
+						if S_AXI_WLAST='1' and S_AXI_WVALID='1' and wready='1' then -- Write Transaction I—¹
+							wrdat_cs <= idle_wrdt;
+						end if;
+					when others =>
+				
+				end case ;
+			end if;
+		end if;
+	end process;
 
-    -- m_seq_wrã€16ãƒ“ãƒƒãƒˆã®Mç³»åˆ—ã‚’è¨ˆç®—ã™ã‚‹
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                m_seq16_wr <= (0 => '1', others => '0');
-            else
-                if WRITE_RANDOM_WAIT=1 then -- Write Transaction æ™‚ã«ãƒ©ãƒ³ãƒ€ãƒ ãªWaitã‚’æŒ¿å…¥ã™ã‚‹
-                    if wrdat_cs=wr_burst and S_AXI_WVALID='1' then
-                        m_seq16_wr <= M_SEQ16_BFM_F(m_seq16_wr);
-                    end if;
-                else -- Waitç„¡ã—
-                    m_seq16_wr <= (others => '0');
-                end if;
-            end if;
-        end if;
-    end process;
-                
-    -- wready ã®å‡¦ç†ã€Mç³»åˆ—ã‚’è¨ˆç®—ã—ã¦128ä»¥ä¸Šã ã£ãŸã‚‰Waitã™ã‚‹ã€‚
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                cs_wready <= idle_wready;
-                wready <= '0';
-            else
-                case (cs_wready) is
-                    when idle_wready =>
-                        if wrdat_cs=idle_wrdt and wad_fifo_empty='0' then -- æ¬¡ã¯wr_burst
-                            if m_seq16_wr(7)='0' then -- wready='1'
-                                cs_wready <= assert_wready;
-                                wready <= '1';
-                            else -- m_seq16_wr(7)='1' then -- wready='0'
-                                cs_wready <= deassert_wready;
-                                wready <= '0';
-                            end if;
-                        end if;
-                    when assert_wready => -- ä¸€åº¦wreadyãŒã‚¢ã‚µãƒ¼ãƒˆã•ã‚ŒãŸã‚‰ã€1ã¤ã®ãƒˆãƒ©ãƒ³ã‚¶ã‚¯ã‚·ãƒ§ãƒ³ãŒçµ‚äº†ã™ã‚‹ã¾ã§wready='1'
-                        if wrdat_cs=wr_burst and S_AXI_WLAST='1' and S_AXI_WVALID='1' then -- çµ‚äº†
-                            cs_wready <= idle_wready;
-                            wready <= '0';
-                        elsif wrdat_cs=wr_burst and S_AXI_WVALID='1' then -- 1ã¤ã®ãƒˆãƒ©ãƒ³ã‚¶ã‚¯ã‚·ãƒ§ãƒ³çµ‚äº†ã€‚
-                            if m_seq16_wr(7)='1' then
-                                cs_wready <= deassert_wready;
-                                wready <= '0';
-                            end if;
-                        end if;
-                    when deassert_wready =>
-                        if m_seq16_wr(7)='0' then -- wready='1'
-                            cs_wready <= assert_wready;
-                            wready <= '1';
-                        end if;
-                end case;
-            end if;
-        end if;
-    end process;
-    
-    S_AXI_WREADY <= wready;
-    cdc_we <= '1' when wrdat_cs=wr_burst and wready='1' and S_AXI_WVALID='1' else '0';
-    
-    -- addr_inc_step_wr ã®å‡¦ç†
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                addr_inc_step_wr <= 1;
-            else
-                if wrdat_cs=idle_wrdt and wad_fifo_empty='0' then
-                    case (wad_fifo_dout(WAD_FIFO_AWSIZE_HIGH downto WAD_FIFO_AWSIZE_LOW)) is
-                        when "000" => -- 8ãƒ“ãƒƒãƒˆè»¢é€
-                            addr_inc_step_wr <= 1;
-                        when "001" => -- 16ãƒ“ãƒƒãƒˆè»¢é€
-                            addr_inc_step_wr <= 2;
-                        when "010" => -- 32ãƒ“ãƒƒãƒˆè»¢é€
-                            addr_inc_step_wr <= 4;
-                        when "011" => -- 64ãƒ“ãƒƒãƒˆè»¢é€
-                            addr_inc_step_wr <= 8;
-                        when "100" => -- 128ãƒ“ãƒƒãƒˆè»¢é€
-                            addr_inc_step_wr <= 16;
-                        when "101" => -- 256ãƒ“ãƒƒãƒˆè»¢é€
-                            addr_inc_step_wr <= 32;
-                        when "110" => -- 512ãƒ“ãƒƒãƒˆè»¢é€
-                            addr_inc_step_wr <= 64;
-                        when others => --"111" => -- 1024ãƒ“ãƒƒãƒˆè»¢é€
-                            addr_inc_step_wr <= 128;
-                    end case;
-                end if;
-            end if;
-        end if;
-    end process;
-    
-    -- wr_addr ã®å‡¦ç†
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                wr_addr <= (others => '0');
-            else
-                if wrdat_cs=idle_wrdt and wad_fifo_empty='0' then
-                    wr_addr <= wad_fifo_dout(C_OFFSET_WIDTH-1 downto 0);
-                elsif wrdat_cs=wr_burst and S_AXI_WVALID='1' and wready='1' then -- ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’é€²ã‚ã‚‹
-                    wr_addr <= wr_addr + addr_inc_step_wr;
-                end if;
-            end if;
-        end if;
-    end process;
-    
-    -- wr_bid ã®å‡¦ç†
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                wr_bid <= "0";
-            else
-                if wrdat_cs=idle_wrdt and wad_fifo_empty='0' then
-                    wr_bid <= wad_fifo_dout(WAD_FIFO_AWID_HIGH downto WAD_FIFO_AWID_LOW);
-                end if;
-            end if;
-        end if;
-    end process;
-    S_AXI_BID <= wr_bid;
-    
-    -- wr_bresp ã®å‡¦ç†
-    -- S_AXI_AWBURSTãŒINCRã®æ™‚ã¯OKAYã‚’è¿”ã™ã€‚ãã‚Œä»¥å¤–ã¯SLVERRã‚’è¿”ã™ã€‚
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                wr_bresp <= (others => '0');
-            else
-                if wrdat_cs=idle_wrdt and wad_fifo_empty='0' then
-                    if wad_fifo_dout(WAD_FIFO_AWBURST_HIGH downto WAD_FIFO_AWBURST_LOW)=AxBURST_INCR then -- ãƒãƒ¼ã‚¹ãƒˆã‚¿ã‚¤ãƒ—ãŒã‚¢ãƒ‰ãƒ¬ã‚¹ãƒ»ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆã‚¿ã‚¤ãƒ—
-                        wr_bresp <= RESP_OKAY; -- Write Transaction ã¯æˆåŠŸ
-                    else
-                        wr_bresp <= RESP_SLVERR; -- ã‚¨ãƒ©ãƒ¼
-                    end if;
-                end if;
-            end if;
-        end if;
-    end process;
-    S_AXI_BRESP <= wr_bresp;
-    
-    -- wr_bvalid ã®å‡¦ç†
-    -- Write Transaction State Machineã«ã¯å«ã¾ãªã„ã€‚axi_master ã®ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³ã‚’è¦‹ã‚‹ã¨ï¼‘ã‚¯ãƒ­ãƒƒã‚¯ã§çµ‚äº†ã—ã¦ã„ã‚‹ã®ã§ã€é•·ã„é–“ã€Masterå´ã®éƒ½åˆã§Waitã—ã¦ã„ã‚‹ã“ã¨ã¯è€ƒãˆãªã„ã€‚
-    -- æ¬¡ã®Writeè»¢é€ã¾ã§é…å»¶ã—ã¦ã„ã‚‹ã‚ˆã†ã§ã‚ã‚Œã°ã€Write Transaction State Machine ã«å…¥ã‚Œã¦ãƒ–ãƒ­ãƒƒã‚¯ã™ã‚‹ã“ã¨ã‚‚è€ƒãˆã‚‹å¿…è¦ãŒã‚ã‚‹ã€‚
+	-- m_seq_wrA16ƒrƒbƒg‚ÌMŒn—ñ‚ğŒvZ‚·‚é
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			if reset='1' then
+				m_seq16_wr <= (0 => '1', others => '0');
+			else
+				if WRITE_RANDOM_WAIT=1 then -- Write Transaction ‚Éƒ‰ƒ“ƒ_ƒ€‚ÈWait‚ğ‘}“ü‚·‚é
+					if wrdat_cs=wr_burst and S_AXI_WVALID='1' then
+						m_seq16_wr <= M_SEQ16_BFM_F(m_seq16_wr);
+					end if;
+				else -- Wait–³‚µ
+					m_seq16_wr <= (others => '0');
+				end if;
+			end if;
+		end if;
+	end process;
+				
+	-- wready ‚Ìˆ—AMŒn—ñ‚ğŒvZ‚µ‚Ä128ˆÈã‚¾‚Á‚½‚çWait‚·‚éB
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			if reset='1' then
+				cs_wready <= idle_wready;
+				wready <= '0';
+			else
+				case (cs_wready) is
+					when idle_wready =>
+						if wrdat_cs=idle_wrdt and wad_fifo_empty='0' then -- Ÿ‚Íwr_burst
+							if m_seq16_wr(7)='0' and wres_fifo_full='0' then -- wready='1'
+								cs_wready <= assert_wready;
+								wready <= '1';
+							else -- m_seq16_wr(7)='1' then -- wready='0'
+								cs_wready <= deassert_wready;
+								wready <= '0';
+							end if;
+						end if;
+					when assert_wready => -- ˆê“xwready‚ªƒAƒT[ƒg‚³‚ê‚½‚çA1‚Â‚Ìƒgƒ‰ƒ“ƒUƒNƒVƒ‡ƒ“‚ªI—¹‚·‚é‚Ü‚Åwready='1'
+						if wrdat_cs=wr_burst and S_AXI_WLAST='1' and S_AXI_WVALID='1' then -- I—¹
+							cs_wready <= idle_wready;
+							wready <= '0';
+						elsif wrdat_cs=wr_burst and S_AXI_WVALID='1' then -- 1‚Â‚Ìƒgƒ‰ƒ“ƒUƒNƒVƒ‡ƒ“I—¹B
+							if m_seq16_wr(7)='1' or wres_fifo_full='1' then
+								cs_wready <= deassert_wready;
+								wready <= '0';
+							end if;
+						end if;
+					when deassert_wready =>
+						if m_seq16_wr(7)='0' and wres_fifo_full='0' then -- wready='1'
+							cs_wready <= assert_wready;
+							wready <= '1';
+						end if;
+				end case;
+			end if;
+		end if;
+	end process;
+	
+	S_AXI_WREADY <= wready;
+	cdc_we <= '1' when wrdat_cs=wr_burst and wready='1' and S_AXI_WVALID='1' else '0';
+	
+	-- addr_inc_step_wr ‚Ìˆ—
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			if reset='1' then
+				addr_inc_step_wr <= 1;
+			else
+				if wrdat_cs=idle_wrdt and wad_fifo_empty='0' then
+					case (wad_fifo_dout(WAD_FIFO_AWSIZE_HIGH downto WAD_FIFO_AWSIZE_LOW)) is
+						when "000" => -- 8ƒrƒbƒg“]‘—
+							addr_inc_step_wr <= 1;
+						when "001" => -- 16ƒrƒbƒg“]‘—
+							addr_inc_step_wr <= 2;
+						when "010" => -- 32ƒrƒbƒg“]‘—
+							addr_inc_step_wr <= 4;
+						when "011" => -- 64ƒrƒbƒg“]‘—
+							addr_inc_step_wr <= 8;
+						when "100" => -- 128ƒrƒbƒg“]‘—
+							addr_inc_step_wr <= 16;
+						when "101" => -- 256ƒrƒbƒg“]‘—
+							addr_inc_step_wr <= 32;
+						when "110" => -- 512ƒrƒbƒg“]‘—
+							addr_inc_step_wr <= 64;
+						when others => --"111" => -- 1024ƒrƒbƒg“]‘—
+							addr_inc_step_wr <= 128;
+					end case;
+				end if;
+			end if;
+		end if;
+	end process;
+	
+	-- wr_addr ‚Ìˆ—
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			if reset='1' then
+				wr_addr <= (others => '0');
+			else
+				if wrdat_cs=idle_wrdt and wad_fifo_empty='0' then
+					wr_addr <= wad_fifo_dout(C_OFFSET_WIDTH-1 downto 0);
+				elsif wrdat_cs=wr_burst and S_AXI_WVALID='1' and wready='1' then -- ƒAƒhƒŒƒX‚ği‚ß‚é
+					wr_addr <= std_logic_vector(unsigned(wr_addr) + addr_inc_step_wr);
+				end if;
+			end if;
+		end if;
+	end process;
+	
+	-- Wirte Response FIFO (wres_fifo)
+	wres_fifo : sync_fifo generic map(
+		C_MEMORY_SIZE => AD_FIFO_DEPTH,
+		DATA_BUS_WIDTH => WRES_FIFO_WIDTH
+	) port map (
+		clk =>			ACLK,
+		rst =>			reset,
+		wr_en => 		wres_fifo_wr_en,
+		din =>			wres_fifo_din,
+		full =>			wres_fifo_full,
+		almost_full =>	wres_fifo_almost_full,
+		rd_en =>		wres_fifo_rd_en,
+		dout =>			wres_fifo_dout,
+		empty => 		wres_fifo_empty,
+		almost_empty =>	wres_fifo_almost_empty
+	);
+	wres_fifo_wr_en <= '1' when S_AXI_WLAST='1' and S_AXI_WVALID='1' and wready='1' else '0'; -- Write Transaction I—¹
+	wres_fifo_din <= (wad_fifo_dout(WAD_FIFO_AWID_HIGH downto WAD_FIFO_AWID_LOW) & wad_fifo_dout(WAD_FIFO_AWBURST_HIGH downto WAD_FIFO_AWBURST_LOW));
+	wres_fifo_rd_en <= '1' when wr_bvalid='1' and S_AXI_BREADY='1' and wres_fifo_empty='0' else '0';
+
+	-- S_AXI_BID ‚Ìˆ—
+	S_AXI_BID <= wres_fifo_dout(WRES_FIFO_AWID_HIGH downto WRES_FIFO_AWID_LOW);
+	
+	-- S_AXI_BRESP ‚Ìˆ—
+	-- S_AXI_AWBURST‚ªINCR‚Ì‚ÍOKAY‚ğ•Ô‚·B‚»‚êˆÈŠO‚ÍSLVERR‚ğ•Ô‚·B
+	S_AXI_BRESP <= RESP_OKAY when wres_fifo_dout(WRES_FIFO_AWBURST_HIGH downto WRES_FIFO_AWBURST_LOW)=AxBURST_INCR else RESP_SLVERR;
+	
+	-- wr_bvalid ‚Ìˆ—
+	-- wr_bvalid ‚ÌƒAƒT[ƒg‚ÍAWrite Data Channel‚ÌŠ®—¹‚æ‚è•K‚¸1ƒNƒƒbƒN‚Í’x‰„‚·‚é
     process (ACLK) begin
         if ACLK'event and ACLK='1' then 
             if reset='1' then
@@ -455,8 +465,8 @@ begin
             else
                 case( wrres_cs ) is
                     when idle_wres =>
-                        if S_AXI_WLAST='1' and S_AXI_WVALID='1' and wready='1' then -- Write Transaction çµ‚äº†
-                            if m_seq16_wr_res = 0 or RUNDAM_BVALID_WAIT=0 then
+                        if wres_fifo_empty='0' then -- Write Transaction I—¹
+                            if unsigned(m_seq16_wr_res) = 0 or RUNDAM_BVALID_WAIT=0 then
                                 wrres_cs <= bvalid_assert;
                                 wr_bvalid <= '1';
                             else
@@ -464,13 +474,15 @@ begin
                             end if;
                         end if;
                     when wait_bvalid =>
-                        if wr_resp_cnt = 0 then
+                        if unsigned(wr_resp_cnt) = 0 then
                             wrres_cs <= bvalid_assert;
                             wr_bvalid <= '1';
                         end if;
                     when bvalid_assert =>
-                        wrres_cs <= idle_wres;
-                        wr_bvalid <= '0';
+                    	if (S_AXI_BREADY='1') then
+	                        wrres_cs <= idle_wres;
+	                        wr_bvalid <= '0';
+	                    end if;
                     when others =>
                 
                 end case ;
@@ -480,296 +492,296 @@ begin
     S_AXI_BVALID <= wr_bvalid;
     S_AXI_BUSER <= (others => '0');
 
-    -- wr_resp_cnt
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                wr_resp_cnt <= (others => '0');
-            else
-                if S_AXI_WLAST='1' and S_AXI_WVALID='1' and wready='1' then -- Write Transaction çµ‚äº†
-                    wr_resp_cnt <= m_seq16_wr_res(4 downto 0);
-                elsif wr_resp_cnt /= 0 then
-                    wr_resp_cnt <= wr_resp_cnt - 1;
-                end if;
-            end if;
-        end if;
-    end process;
+	-- wr_resp_cnt
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			if reset='1' then
+				wr_resp_cnt <= (others => '0');
+			else
+				if wrres_cs=idle_wres and wres_fifo_empty='0' then
+					wr_resp_cnt <= m_seq16_wr_res(4 downto 0);
+				elsif unsigned(wr_resp_cnt) /= 0 then
+					wr_resp_cnt <= std_logic_vector(unsigned(wr_resp_cnt) - 1);
+				end if;
+			end if;
+		end if;
+	end process;
 
-    -- m_seq_wr_resã€16ãƒ“ãƒƒãƒˆã®Mç³»åˆ—ã‚’è¨ˆç®—ã™ã‚‹
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                m_seq16_wr_res <= (0 => '1', others => '0');
-            else
-                m_seq16_wr_res <= M_SEQ16_BFM_F(m_seq16_wr_res);
-            end if;
-        end if;
-    end process;
-    
-    
-    -- AXI4ãƒã‚¹ Read Address Transaction State Machine
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                rdadr_cs <= idle_rda;
-                arready <= '0';
-            else
-                case (rdadr_cs) is
-                    when idle_rda =>
-                        if S_AXI_ARVALID='1' and rad_fifo_full='0' then -- Read Transaction è¦æ±‚
-                            rdadr_cs <= arr_accept;
-                            arready <= '1';
-                        end if;
-                    when arr_accept => -- S_AXI_ARREADY ã‚’ã‚¢ã‚µãƒ¼ãƒˆ
-                        rdadr_cs <= idle_rda;
-                        arready <= '0';
-                end case;
-            end if;
-        end if;
-    end process;
-    S_AXI_ARREADY <= arready;
+	-- m_seq_wr_resA16ƒrƒbƒg‚ÌMŒn—ñ‚ğŒvZ‚·‚é
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			if reset='1' then
+				m_seq16_wr_res <= (0 => '1', others => '0');
+			else
+				m_seq16_wr_res <= M_SEQ16_BFM_F(m_seq16_wr_res);
+			end if;
+		end if;
+	end process;
+	
+	
+	-- AXI4ƒoƒX Read Address Transaction State Machine
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			if reset='1' then
+				rdadr_cs <= idle_rda;
+				arready <= '0';
+			else
+				case (rdadr_cs) is
+					when idle_rda =>
+						if S_AXI_ARVALID='1' and rad_fifo_full='0' then -- Read Transaction —v‹
+							rdadr_cs <= arr_accept;
+							arready <= '1';
+						end if;
+					when arr_accept => -- S_AXI_ARREADY ‚ğƒAƒT[ƒg
+						rdadr_cs <= idle_rda;
+						arready <= '0';
+				end case;
+			end if;
+		end if;
+	end process;
+	S_AXI_ARREADY <= arready;
 
-    -- S_AXI_ARID & S_AXI_ARBURST & S_AXI_ARSIZE & S_AXI_ARLEN & S_AXI_ARADDR ã‚’ä¿å­˜ã—ã¦ãŠãåŒæœŸFIFO
-    rad_fifo_din <= (S_AXI_ARID & S_AXI_ARBURST & S_AXI_ARSIZE & S_AXI_ARLEN & S_AXI_ARADDR);
+	-- S_AXI_ARID & S_AXI_ARBURST & S_AXI_ARSIZE & S_AXI_ARLEN & S_AXI_ARADDR ‚ğ•Û‘¶‚µ‚Ä‚¨‚­“¯ŠúFIFO
+	rad_fifo_din <= (S_AXI_ARID & S_AXI_ARBURST & S_AXI_ARSIZE & S_AXI_ARLEN & S_AXI_ARADDR);
 
-    rad_fifo : sync_fifo generic map (
-        C_MEMORY_SIZE =>    16,
-        DATA_BUS_WIDTH =>    46
-    ) port map (
-        clk =>            ACLK,
-        rst =>            reset,
-        wr_en =>        arready,
-        din =>             rad_fifo_din,
-        full =>            rad_fifo_full,
-        almost_full =>    rad_fifo_almost_full,
-        rd_en =>        rad_fifo_rd_en,
-        dout =>            rad_fifo_dout,
-        empty =>        rad_fifo_empty,
-        almost_empty =>    rad_fifo_almost_empty
-    );
-    rad_fifo_rd_en <= '1' when rvalid='1' and S_AXI_RREADY='1' and rlast='1' else '0';
+	rad_fifo : sync_fifo generic map (
+		C_MEMORY_SIZE =>	AD_FIFO_DEPTH,
+		DATA_BUS_WIDTH =>	RAD_FIFO_WIDTH
+	) port map (
+		clk =>			ACLK,
+		rst =>			reset,
+		wr_en =>		arready,
+		din => 			rad_fifo_din,
+		full =>			rad_fifo_full,
+		almost_full =>	rad_fifo_almost_full,
+		rd_en =>		rad_fifo_rd_en,
+		dout =>			rad_fifo_dout,
+		empty =>		rad_fifo_empty,
+		almost_empty =>	rad_fifo_almost_empty
+	);
+	rad_fifo_rd_en <= '1' when rvalid='1' and S_AXI_RREADY='1' and rlast='1' else '0';
 
-    -- AXI4ãƒã‚¹ Read Data Transaction State Machine
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                rddat_cs <= idle_rdd;
-            else
-                case (rddat_cs) is
-                    when idle_rdd =>
-                        if rad_fifo_empty='0' then -- AXI Read ã‚¢ãƒ‰ãƒ¬ã‚¹è»¢é€ã®æ®‹ã‚ŠãŒ1å€‹ä»¥ä¸Šã‚ã‚‹
-                            rddat_cs <= rd_burst;
-                        end if;
-                    when rd_burst =>
-                        if rd_axi_count=0 and rvalid='1' and S_AXI_RREADY='1' then -- Read Transaction çµ‚äº†
-                            rddat_cs <= idle_rdd;
-                        end if;
-                end case;
-            end if;
-        end if;
-    end process;
+	-- AXI4ƒoƒX Read Data Transaction State Machine
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			if reset='1' then
+				rddat_cs <= idle_rdd;
+			else
+				case (rddat_cs) is
+					when idle_rdd =>
+						if rad_fifo_empty='0' then -- AXI Read ƒAƒhƒŒƒX“]‘—‚Ìc‚è‚ª1ŒÂˆÈã‚ ‚é
+							rddat_cs <= rd_burst;
+						end if;
+					when rd_burst =>
+						if unsigned(rd_axi_count)=0 and rvalid='1' and S_AXI_RREADY='1' then -- Read Transaction I—¹
+							rddat_cs <= idle_rdd;
+						end if;
+				end case;
+			end if;
+		end if;
+	end process;
 
-    -- m_seq_rdã€16ãƒ“ãƒƒãƒˆã®Mç³»åˆ—ã‚’è¨ˆç®—ã™ã‚‹
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                m_seq16_rd <= (others => '1'); -- Writeã¨ã‚·ãƒ¼ãƒ‰ã‚’å¤‰æ›´ã™ã‚‹
-            else
-                if READ_RANDOM_WAIT=1 then -- Read Transaciton ã®ãƒ‡ãƒ¼ã‚¿è»¢é€ã§ãƒ©ãƒ³ãƒ€ãƒ ãªWaitã‚’æŒ¿å…¥ã™ã‚‹å ´åˆ
-                    if rddat_cs=rd_burst and S_AXI_RREADY='1' then
-                        m_seq16_rd <= M_SEQ16_BFM_F(m_seq16_rd);
-                    end if;
-                else -- Watiç„¡ã—
-                    m_seq16_rd <= (others => '0');
-                end if;
-            end if;
-        end if;
-    end process;
-                
-    -- rvalid ã®å‡¦ç†ã€Mç³»åˆ—ã‚’è¨ˆç®—ã—ã¦128ä»¥ä¸Šã ã£ãŸã‚‰Waitã™ã‚‹ã€‚
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                cs_rvalid <= idle_rvalid;
-                rvalid <= '0';
-            else
-                case (cs_rvalid) is
-                    when idle_rvalid =>
-                        if rddat_cs=idle_rdd and rad_fifo_empty='0' then -- æ¬¡ã¯rd_burst
-                            if m_seq16_rd(7)='0' then -- rvalid='1'
-                                cs_rvalid <= assert_rvalid;
-                                rvalid <= '1';
-                            else -- m_seq16_rd(7)='1' then -- rvalid='0'
-                                cs_rvalid <= deassert_rvalid;
-                                rvalid <= '0';
-                            end if;
-                        end if;
-                    when assert_rvalid => -- ä¸€åº¦rvalidãŒã‚¢ã‚µãƒ¼ãƒˆã•ã‚ŒãŸã‚‰ã€1ã¤ã®ãƒˆãƒ©ãƒ³ã‚¶ã‚¯ã‚·ãƒ§ãƒ³ãŒçµ‚äº†ã™ã‚‹ã¾ã§rvalid='1'
-                        if rddat_cs=rd_burst and rlast='1' and S_AXI_RREADY='1' then -- çµ‚äº†
-                            cs_rvalid <= idle_rvalid;
-                            rvalid <= '0';
-                        elsif rddat_cs=rd_burst and S_AXI_RREADY='1' then -- 1ã¤ã®ãƒˆãƒ©ãƒ³ã‚¶ã‚¯ã‚·ãƒ§ãƒ³çµ‚äº†ã€‚
-                            if m_seq16_rd(7)='1' then
-                                cs_rvalid <= deassert_rvalid;
-                                rvalid <= '0';
-                            end if;
-                        end if;
-                    when deassert_rvalid =>
-                        if m_seq16_rd(7)='0' then -- rvalid='1'
-                            cs_rvalid <= assert_rvalid;
-                            rvalid <= '1';
-                        end if;
-                end case;
-            end if;
-        end if;
-    end process;
-    
-    S_AXI_RVALID <= rvalid;
-    
-    -- addr_inc_step_rd ã®å‡¦ç†
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                addr_inc_step_rd <= 1;
-            else
-                if rddat_cs=idle_rdd and rad_fifo_empty='0' then
-                    case (rad_fifo_dout(RAD_FIFO_ARSIZE_HIGH downto RAD_FIFO_ARSIZE_LOW)) is
-                        when "000" => -- 8ãƒ“ãƒƒãƒˆè»¢é€
-                            addr_inc_step_rd <= 1;
-                        when "001" => -- 16ãƒ“ãƒƒãƒˆè»¢é€
-                            addr_inc_step_rd <= 2;
-                        when "010" => -- 32ãƒ“ãƒƒãƒˆè»¢é€
-                            addr_inc_step_rd <= 4;
-                        when "011" => -- 64ãƒ“ãƒƒãƒˆè»¢é€
-                            addr_inc_step_rd <= 8;
-                        when "100" => -- 128ãƒ“ãƒƒãƒˆè»¢é€
-                            addr_inc_step_rd <= 16;
-                        when "101" => -- 256ãƒ“ãƒƒãƒˆè»¢é€
-                            addr_inc_step_rd <= 32;
-                        when "110" => -- 512ãƒ“ãƒƒãƒˆè»¢é€
-                            addr_inc_step_rd <= 64;
-                        when others => -- "111" => -- 1024ãƒ“ãƒƒãƒˆè»¢é€
-                            addr_inc_step_rd <= 128;
-                    end case;
-                end if;
-            end if;
-        end if;
-    end process;
-    
-    -- rd_addr ã®å‡¦ç†
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                rd_addr <= (others => '0');
-            else
-                if rddat_cs=idle_rdd and rad_fifo_empty='0' then
-                    rd_addr <= rad_fifo_dout(C_OFFSET_WIDTH-1 downto 0);
-                elsif rddat_cs=rd_burst and S_AXI_RREADY='1' and rvalid='1' then
-                    rd_addr <= rd_addr + addr_inc_step_rd;
-                end if;
-            end if;
-        end if;
-    end process;
-    
-    -- rd_axi_count ã®å‡¦ç†ï¼ˆAXIãƒã‚¹å´ã®ãƒ‡ãƒ¼ã‚¿ã‚«ã‚¦ãƒ³ãƒˆï¼‰
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                rd_axi_count <= (others => '0');
-            else
-                if rddat_cs=idle_rdd and rad_fifo_empty='0' then -- rd_axi_count ã®ãƒ­ãƒ¼ãƒ‰
-                    rd_axi_count <= rad_fifo_dout(RAD_FIFO_ARLEN_HIGH downto RAD_FIFO_ARLEN_LOW);
-                elsif rddat_cs=rd_burst and rvalid='1' and S_AXI_RREADY='1' then -- Read Transaction ãŒ1ã¤çµ‚äº†
-                    rd_axi_count <= rd_axi_count - 1;
-                end if;
-            end if;
-        end if;
-    end process;
-    
-    -- rdlast State Machine
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                rdlast <= idle_rlast;
-                rlast <= '0';
-            else
-                case (rdlast) is
-                    when idle_rlast =>
-                        if rd_axi_count=1 and rvalid='1' and S_AXI_RREADY='1' then -- ãƒãƒ¼ã‚¹ãƒˆã™ã‚‹å ´åˆ
-                            rdlast <= rlast_assert;
-                            rlast <= '1';
-                        elsif rddat_cs=idle_rdd and rad_fifo_empty='0' and rad_fifo_dout(RAD_FIFO_ARLEN_HIGH downto RAD_FIFO_ARLEN_LOW)=0 then -- è»¢é€æ•°ãŒ1ã®å ´åˆ
-                            rdlast <= rlast_assert;
-                            rlast <= '1';
-                        end if;
-                    when rlast_assert => 
-                        if rvalid='1' and S_AXI_RREADY='1' then -- Read Transaction çµ‚äº†ï¼ˆrd_axi_count=0ã¯æ±ºå®šï¼‰
-                            rdlast <= idle_rlast;
-                            rlast <= '0';
-                        end if;
-                end case;
-            end if;
-        end if;
-    end process;
-    S_AXI_RLAST <= rlast;
-    
-    -- S_AXI_RID, S_AXI_RUSER ã®å‡¦ç†
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                S_AXI_RID <= (others => '0');
-            else
-                if rddat_cs=idle_rdd and rad_fifo_empty='0' then
-                    S_AXI_RID <= rad_fifo_dout(RAD_FIFO_ARID_HIGH downto RAD_FIFO_ARID_LOW);
-                end if;
-            end if;
-        end if;
-    end process;
-    S_AXI_RUSER <= (others => '0');
-    
-    -- S_AXI_RRESP ã¯ã€S_AXI_ARBURST ãŒINCR ã®å ´åˆã¯OKAYã‚’è¿”ã™ã€‚ãã‚Œä»¥å¤–ã¯SLVERRã‚’è¿”ã™ã€‚
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                S_AXI_RRESP <= (others => '0');
-            else
-                if rddat_cs=idle_rdd and rad_fifo_empty='0' then
-                    if rad_fifo_dout(RAD_FIFO_ARBURST_HIGH downto RAD_FIFO_ARBURST_LOW)=AxBURST_INCR then
-                        S_AXI_RRESP <= RESP_OKAY;
-                    else
-                        S_AXI_RRESP <= RESP_SLVERR;
-                    end if;
-                end if;
-            end if;
-        end if;
-    end process;
-    
-    -- RAM
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if cdc_we='1' then
-                for i in 0 to C_S_AXI_DATA_WIDTH/8-1 loop
-                    if S_AXI_WSTRB(i)='1' then -- Byte Enable
-                        ram_array(CONV_INTEGER(wr_addr(C_OFFSET_WIDTH-1 downto ADD_INC_OFFSET)))(i*8+7 downto i*8) <= S_AXI_WDATA(i*8+7 downto i*8);
-                    end if;
-                end loop;
-            end if;
-        end if;
-    end process;
+	-- m_seq_rdA16ƒrƒbƒg‚ÌMŒn—ñ‚ğŒvZ‚·‚é
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			if reset='1' then
+				m_seq16_rd <= (others => '1'); -- Write‚ÆƒV[ƒh‚ğ•ÏX‚·‚é
+			else
+				if READ_RANDOM_WAIT=1 then -- Read Transaciton ‚Ìƒf[ƒ^“]‘—‚Åƒ‰ƒ“ƒ_ƒ€‚ÈWait‚ğ‘}“ü‚·‚éê‡
+					if rddat_cs=rd_burst and S_AXI_RREADY='1' then
+						m_seq16_rd <= M_SEQ16_BFM_F(m_seq16_rd);
+					end if;
+				else -- Wati–³‚µ
+					m_seq16_rd <= (others => '0');
+				end if;
+			end if;
+		end if;
+	end process;
+				
+	-- rvalid ‚Ìˆ—AMŒn—ñ‚ğŒvZ‚µ‚Ä128ˆÈã‚¾‚Á‚½‚çWait‚·‚éB
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			if reset='1' then
+				cs_rvalid <= idle_rvalid;
+				rvalid <= '0';
+			else
+				case (cs_rvalid) is
+					when idle_rvalid =>
+						if rddat_cs=idle_rdd and rad_fifo_empty='0' then -- Ÿ‚Írd_burst
+							if m_seq16_rd(7)='0' then -- rvalid='1'
+								cs_rvalid <= assert_rvalid;
+								rvalid <= '1';
+							else -- m_seq16_rd(7)='1' then -- rvalid='0'
+								cs_rvalid <= deassert_rvalid;
+								rvalid <= '0';
+							end if;
+						end if;
+					when assert_rvalid => -- ˆê“xrvalid‚ªƒAƒT[ƒg‚³‚ê‚½‚çA1‚Â‚Ìƒgƒ‰ƒ“ƒUƒNƒVƒ‡ƒ“‚ªI—¹‚·‚é‚Ü‚Årvalid='1'
+						if rddat_cs=rd_burst and rlast='1' and S_AXI_RREADY='1' then -- I—¹
+							cs_rvalid <= idle_rvalid;
+							rvalid <= '0';
+						elsif rddat_cs=rd_burst and S_AXI_RREADY='1' then -- 1‚Â‚Ìƒgƒ‰ƒ“ƒUƒNƒVƒ‡ƒ“I—¹B
+							if m_seq16_rd(7)='1' then
+								cs_rvalid <= deassert_rvalid;
+								rvalid <= '0';
+							end if;
+						end if;
+					when deassert_rvalid =>
+						if m_seq16_rd(7)='0' then -- rvalid='1'
+							cs_rvalid <= assert_rvalid;
+							rvalid <= '1';
+						end if;
+				end case;
+			end if;
+		end if;
+	end process;
+	
+	S_AXI_RVALID <= rvalid;
+	
+	-- addr_inc_step_rd ‚Ìˆ—
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			if reset='1' then
+				addr_inc_step_rd <= 1;
+			else
+				if rddat_cs=idle_rdd and rad_fifo_empty='0' then
+					case (rad_fifo_dout(RAD_FIFO_ARSIZE_HIGH downto RAD_FIFO_ARSIZE_LOW)) is
+						when "000" => -- 8ƒrƒbƒg“]‘—
+							addr_inc_step_rd <= 1;
+						when "001" => -- 16ƒrƒbƒg“]‘—
+							addr_inc_step_rd <= 2;
+						when "010" => -- 32ƒrƒbƒg“]‘—
+							addr_inc_step_rd <= 4;
+						when "011" => -- 64ƒrƒbƒg“]‘—
+							addr_inc_step_rd <= 8;
+						when "100" => -- 128ƒrƒbƒg“]‘—
+							addr_inc_step_rd <= 16;
+						when "101" => -- 256ƒrƒbƒg“]‘—
+							addr_inc_step_rd <= 32;
+						when "110" => -- 512ƒrƒbƒg“]‘—
+							addr_inc_step_rd <= 64;
+						when others => -- "111" => -- 1024ƒrƒbƒg“]‘—
+							addr_inc_step_rd <= 128;
+					end case;
+				end if;
+			end if;
+		end if;
+	end process;
+	
+	-- rd_addr ‚Ìˆ—
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			if reset='1' then
+				rd_addr <= (others => '0');
+			else
+				if rddat_cs=idle_rdd and rad_fifo_empty='0' then
+					rd_addr <= rad_fifo_dout(C_OFFSET_WIDTH-1 downto 0);
+				elsif rddat_cs=rd_burst and S_AXI_RREADY='1' and rvalid='1' then
+					rd_addr <= std_logic_vector(unsigned(rd_addr) + addr_inc_step_rd);
+				end if;
+			end if;
+		end if;
+	end process;
+	
+	-- rd_axi_count ‚Ìˆ—iAXIƒoƒX‘¤‚Ìƒf[ƒ^ƒJƒEƒ“ƒgj
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			if reset='1' then
+				rd_axi_count <= (others => '0');
+			else
+				if rddat_cs=idle_rdd and rad_fifo_empty='0' then -- rd_axi_count ‚Ìƒ[ƒh
+					rd_axi_count <= rad_fifo_dout(RAD_FIFO_ARLEN_HIGH downto RAD_FIFO_ARLEN_LOW);
+				elsif rddat_cs=rd_burst and rvalid='1' and S_AXI_RREADY='1' then -- Read Transaction ‚ª1‚ÂI—¹
+					rd_axi_count <= std_logic_vector(unsigned(rd_axi_count) - 1);
+				end if;
+			end if;
+		end if;
+	end process;
+	
+	-- rdlast State Machine
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			if reset='1' then
+				rdlast <= idle_rlast;
+				rlast <= '0';
+			else
+				case (rdlast) is
+					when idle_rlast =>
+						if unsigned(rd_axi_count)=1 and rvalid='1' and S_AXI_RREADY='1' then -- ƒo[ƒXƒg‚·‚éê‡
+							rdlast <= rlast_assert;
+							rlast <= '1';
+						elsif rddat_cs=idle_rdd and rad_fifo_empty='0' and unsigned(rad_fifo_dout(RAD_FIFO_ARLEN_HIGH downto RAD_FIFO_ARLEN_LOW))=0 then -- “]‘—”‚ª1‚Ìê‡
+							rdlast <= rlast_assert;
+							rlast <= '1';
+						end if;
+					when rlast_assert => 
+						if rvalid='1' and S_AXI_RREADY='1' then -- Read Transaction I—¹ird_axi_count=0‚ÍŒˆ’èj
+							rdlast <= idle_rlast;
+							rlast <= '0';
+						end if;
+				end case;
+			end if;
+		end if;
+	end process;
+	S_AXI_RLAST <= rlast;
+	
+	-- S_AXI_RID, S_AXI_RUSER ‚Ìˆ—
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			if reset='1' then
+				S_AXI_RID <= (others => '0');
+			else
+				if rddat_cs=idle_rdd and rad_fifo_empty='0' then
+					S_AXI_RID <= rad_fifo_dout(RAD_FIFO_ARID_HIGH downto RAD_FIFO_ARID_LOW);
+				end if;
+			end if;
+		end if;
+	end process;
+	S_AXI_RUSER <= (others => '0');
+	
+	-- S_AXI_RRESP ‚ÍAS_AXI_ARBURST ‚ªINCR ‚Ìê‡‚ÍOKAY‚ğ•Ô‚·B‚»‚êˆÈŠO‚ÍSLVERR‚ğ•Ô‚·B
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			if reset='1' then
+				S_AXI_RRESP <= (others => '0');
+			else
+				if rddat_cs=idle_rdd and rad_fifo_empty='0' then
+					if rad_fifo_dout(RAD_FIFO_ARBURST_HIGH downto RAD_FIFO_ARBURST_LOW)=AxBURST_INCR then
+						S_AXI_RRESP <= RESP_OKAY;
+					else
+						S_AXI_RRESP <= RESP_SLVERR;
+					end if;
+				end if;
+			end if;
+		end if;
+	end process;
+	
+	-- RAM
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			if cdc_we='1' then
+				for i in 0 to C_S_AXI_DATA_WIDTH/8-1 loop
+					if S_AXI_WSTRB(i)='1' then -- Byte Enable
+						ram_array(TO_INTEGER(unsigned(wr_addr(C_OFFSET_WIDTH-1 downto ADD_INC_OFFSET))))(i*8+7 downto i*8) <= S_AXI_WDATA(i*8+7 downto i*8);
+					end if;
+				end loop;
+			end if;
+		end if;
+	end process;
 
-    -- Read Transaciton ã®æ™‚ã« +1 ã•ã‚ŒãŸReadãƒ‡ãƒ¼ã‚¿ã‚’ä½¿ç”¨ã™ã‚‹ï¼ˆRead æ¯ã«+1ï¼‰
-    process (ACLK) begin
-        if ACLK'event and ACLK='1' then 
-            if reset='1' then
-                read_data_count <= (others => '0');
-            else
-                if rddat_cs=rd_burst and rvalid='1' and S_AXI_RREADY='1' then -- Read Transaction ãŒ1ã¤çµ‚äº†
-                    read_data_count <= read_data_count + 1;
-                end if;
-            end if;
-        end if;
-    end process;
-    
-    S_AXI_RDATA <= ram_array(CONV_INTEGER(rd_addr(C_OFFSET_WIDTH-1 downto ADD_INC_OFFSET))) when READ_DATA_IS_INCREMENT=0 else read_data_count;
-    
+	-- Read Transaciton ‚Ì‚É +1 ‚³‚ê‚½Readƒf[ƒ^‚ğg—p‚·‚éiRead –ˆ‚É+1j
+	process (ACLK) begin
+		if ACLK'event and ACLK='1' then 
+			if reset='1' then
+				read_data_count <= (others => '0');
+			else
+				if rddat_cs=rd_burst and rvalid='1' and S_AXI_RREADY='1' then -- Read Transaction ‚ª1‚ÂI—¹
+					read_data_count <= std_logic_vector(unsigned(read_data_count) + 1);
+				end if;
+			end if;
+		end if;
+	end process;
+	
+	S_AXI_RDATA <= ram_array(TO_INTEGER(unsigned(rd_addr(C_OFFSET_WIDTH-1 downto ADD_INC_OFFSET)))) when READ_DATA_IS_INCREMENT=0 else read_data_count;
+	
 end implementation;
