@@ -1,8 +1,8 @@
 -----------------------------------------------------------------------------------
 --!     @file    axi_slave_bfm_test_benc.vhd
 --!     @brief   TEST BENCH axi_slave_BFM
---!     @version 0.0.1
---!     @date    2014/7/5
+--!     @version 0.0.2
+--!     @date    2014/7/19
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -88,7 +88,6 @@ architecture MODEL of axi_slave_bfm_test_bench is
     -- リードアドレスチャネルシグナル.
     ------------------------------------------------------------------------------
     signal   S_AXI_ARADDR    : std_logic_vector(WIDTH.ARADDR -1 downto 0);
-    signal   S_AXI_ARWRITE   : std_logic;
     signal   S_AXI_ARLEN     : std_logic_vector(WIDTH.ALEN   -1 downto 0);
     signal   S_AXI_ARSIZE    : AXI4_ASIZE_TYPE;
     signal   S_AXI_ARBURST   : AXI4_ABURST_TYPE;
@@ -180,7 +179,7 @@ architecture MODEL of axi_slave_bfm_test_bench is
             WRITE_RANDOM_WAIT        : integer := 1;
             READ_RANDOM_WAIT         : integer := 0;
             READ_DATA_IS_INCREMENT   : integer := 0;
-            RUNDAM_BVALID_WAIT       : integer := 0
+            RANDOM_BVALID_WAIT       : integer := 0
         );
         port(
             -- System Signals
@@ -262,7 +261,7 @@ begin
             FINISH          => N_FINISH          -- Out :
         );
     ------------------------------------------------------------------------------
-    -- AXI4_MASTER_PLAYER
+    -- 
     ------------------------------------------------------------------------------
     M: AXI4_MASTER_PLAYER
         generic map (
@@ -361,7 +360,7 @@ begin
             FINISH          => M_FINISH          -- Out :
         );
     ------------------------------------------------------------------------------
-    -- AXI4_SLAVE_PLAYER
+    -- 
     ------------------------------------------------------------------------------
     DUT: axi_slave_bfm
         generic map (
@@ -379,7 +378,7 @@ begin
             WRITE_RANDOM_WAIT        => 1,
             READ_RANDOM_WAIT         => 0,
             READ_DATA_IS_INCREMENT   => 0,
-            RUNDAM_BVALID_WAIT       => 0
+            RANDOM_BVALID_WAIT       => 0
         ) 
         port map(
             -- System Signals
