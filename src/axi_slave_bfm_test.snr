@@ -3,6 +3,7 @@
 # axi_slave_bfm Test Bench Scenario 1
 #
 #----------------------------------------------------------------------------------
+---
 - MARCHAL:
   -  SAY: >
        axi_slave_bfm test bench scenario 1.1 start
@@ -16,7 +17,8 @@
   - SYNC  : {PORT: LOCAL, TIMEOUT: 1000}
   - READ  : {ADDR: 0x0000FC88, SIZE: 4, BURST: INCR, ID: 0, DATA: [0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F], RESP: OKAY}
   - SYNC  : {PORT: LOCAL, TIMEOUT: 1000}
-- - [MARCHAL,MASTER]
+---
+- MARCHAL:
   - SAY: >
        axi_slave_bfm test bench scenario 1.1 done
 ---
@@ -95,7 +97,7 @@
     - CHECK : {RESP: OKAY, ID: 0}
     - READY : 0
 ---
-- - [MARCHAL,MASTER]
+- MARCHAL:
   - SAY: >
        axi_slave_bfm test bench scenario 1.2 done
 ---
