@@ -9,6 +9,9 @@
 -- sync_fifo を使用したオーバーラップ対応版
 -- 2014/07/04 : M_AXIをスレーブに対応した名前のS_AXIに変更
 -- 2014/07/16 : Write Respose Channel に sync_fifo を使用した
+--
+-- ライセンスは二条項BSDライセンス (2-clause BSD license)とします。
+--
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -62,7 +65,7 @@ entity axi_slave_bfm is
 	WRITE_RANDOM_WAIT		: integer := 1; -- Write Transaction のデータ転送の時にランダムなWaitを発生させる=1, Waitしない=0
 	READ_RANDOM_WAIT		: integer := 0; -- Read Transaction のデータ転送の時にランダムなWaitを発生させる=1, Waitしない=0
 	READ_DATA_IS_INCREMENT	: integer := 0; -- ReadトランザクションでRAMの内容をReadする = 0（RAMにWriteしたものをReadする）、Readデータを+1する = 1（データは+1したデータをReadデータとして使用する
-	RUNDAM_BVALID_WAIT		: integer := 0	-- Write Data Transaction が終了した後で、BVALID をランダムにWaitする = 1、BVALID をランダムにWaitしない = 0, 31 ~ 0 クロックのWait
+        RANDOM_BVALID_WAIT		: integer := 0	-- Write Data Transaction が終了した後で、BVALID をランダムにWaitする = 1、BVALID をランダムにWaitしない = 0, 31 ~ 0 クロックのWait
     );
   port(
     -- System Signals
@@ -466,7 +469,7 @@ begin
                 case( wrres_cs ) is
                     when idle_wres =>
                         if wres_fifo_empty='0' then -- Write Transaction 終了
-                            if unsigned(m_seq16_wr_res) = 0 or RUNDAM_BVALID_WAIT=0 then
+                            if unsigned(m_seq16_wr_res) = 0 or RANDOM_BVALID_WAIT=0 then
                                 wrres_cs <= bvalid_assert;
                                 wr_bvalid <= '1';
                             else
