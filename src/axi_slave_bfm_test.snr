@@ -25,7 +25,6 @@
 - MARCHAL:
   -  SAY: >
        axi_slave_bfm test bench scenario 1.2 start
-  -  TIMEOUT: ON
 - MASTER:
   - AW:
     - VALID : 0
@@ -100,4 +99,282 @@
 - MARCHAL:
   - SAY: >
        axi_slave_bfm test bench scenario 1.2 done
+---
+- MARCHAL:
+  -  SAY: >
+       axi_slave_bfm test bench scenario 1.3 start
+
+- MASTER:
+  - AW:
+    - {VALID : 0}
+    - {WAIT  : 10}
+    - {VALID : 1, ADDR: 0x00000A00, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A04, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A08, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A0C, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A10, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A14, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A18, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A1C, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A20, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A24, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A28, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A2C, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A30, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A34, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A38, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A3C, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A40, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A44, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A48, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A4C, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 0}
+  - W:
+    - {VALID : 0, DATA: 0x00000000, STRB: 0x0, LAST: 0}
+    - {WAIT  : {AWVALID: 1, AWREADY: 1}} #  1
+    - {WAIT  : {AWVALID: 1, AWREADY: 1}} #  2
+    - {WAIT  : {AWVALID: 1, AWREADY: 1}} #  3
+    - {WAIT  : {AWVALID: 1, AWREADY: 1}} #  4
+    - {WAIT  : {AWVALID: 1, AWREADY: 1}} #  5
+    - {WAIT  : {AWVALID: 1, AWREADY: 1}} #  6
+    - {WAIT  : {AWVALID: 1, AWREADY: 1}} #  7
+    - {WAIT  : {AWVALID: 1, AWREADY: 1}} #  8
+    - {WAIT  : {AWVALID: 1, AWREADY: 1}} #  9
+    - {WAIT  : {AWVALID: 1, AWREADY: 1}} # 10
+    - {WAIT  : {AWVALID: 1, AWREADY: 1}} # 11
+    - {WAIT  : {AWVALID: 1, AWREADY: 1}} # 12
+    - {WAIT  : {AWVALID: 1, AWREADY: 1}} # 13
+    - {WAIT  : {AWVALID: 1, AWREADY: 1}} # 14
+    - {WAIT  : {AWVALID: 1, AWREADY: 1}} # 15
+  # - {WAIT  : {AWVALID: 1, AWREADY: 1}} # 16 (このコメントを外すと動かない)
+    - {VALID : 1, DATA: 0x03020100, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, DATA: 0x07060504, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, DATA: 0x0B0A0908, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, DATA: 0x0F0E0D0C, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, DATA: 0x13121110, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, DATA: 0x17161514, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, DATA: 0x1B1A1918, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, DATA: 0x1F1E1D1C, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, DATA: 0x23222120, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, DATA: 0x27262524, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, DATA: 0x2B2A2928, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, DATA: 0x2F2E2D2C, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, DATA: 0x33323130, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, DATA: 0x37363534, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, DATA: 0x3B3A3938, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, DATA: 0x3F3E3D3C, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, DATA: 0x43424140, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, DATA: 0x47464544, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, DATA: 0x4B4A4948, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, DATA: 0x4F4E4D4C, STRB: 0xF, LAST: 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 0, DATA: 0x00000000, STRB: 0x0, LAST: 0}
+  - B:
+    - {READY : 0}
+    - {WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}} #  1
+    - {WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}} #  2
+    - {WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}} #  3
+    - {WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}} #  4
+    - {WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}} #  5
+    - {WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}} #  6
+    - {WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}} #  7
+    - {WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}} #  8
+    - {WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}} #  9
+    - {WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}} # 10
+    - {WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}} # 11
+    - {WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}} # 12
+    - {WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}} # 13
+    - {WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}} # 14
+    - {WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}} # 15
+  # - {WAIT  : {WVALID: 1, WREADY: 1, WLAST: 1}} # 16 (このコメントを外すと動かない)
+    - {READY : 1}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {WAIT  : {BVALID: 1, BREADY: 1}}
+    - {CHECK : {RESP: OKAY, ID: 0}}
+    - {READY : 0}
+  - SYNC  : {PORT: LOCAL, TIMEOUT: 1000}
+  - AR:
+    - {VALID : 0}
+    - {WAIT  : 10}
+    - {VALID : 1, ADDR: 0x00000A00, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A04, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A08, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A0C, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A10, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A14, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A18, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A1C, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A20, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A24, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A28, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A2C, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A30, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A34, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A38, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A3C, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A40, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A44, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A48, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 1, ADDR: 0x00000A4C, SIZE: 4, LEN: 1, ID: 0, BURST: INCR}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {VALID : 0}
+  - R:
+    - {READY : 0}
+    - {WAIT  : {ARVALID: 1, ARREADY: 1}} #  1
+    - {WAIT  : {ARVALID: 1, ARREADY: 1}} #  2
+    - {WAIT  : {ARVALID: 1, ARREADY: 1}} #  3
+    - {WAIT  : {ARVALID: 1, ARREADY: 1}} #  4
+    - {WAIT  : {ARVALID: 1, ARREADY: 1}} #  5
+    - {WAIT  : {ARVALID: 1, ARREADY: 1}} #  6
+    - {WAIT  : {ARVALID: 1, ARREADY: 1}} #  7
+    - {WAIT  : {ARVALID: 1, ARREADY: 1}} #  8
+    - {WAIT  : {ARVALID: 1, ARREADY: 1}} #  9
+    - {WAIT  : {ARVALID: 1, ARREADY: 1}} # 10
+    - {WAIT  : {ARVALID: 1, ARREADY: 1}} # 11
+    - {WAIT  : {ARVALID: 1, ARREADY: 1}} # 12
+    - {WAIT  : {ARVALID: 1, ARREADY: 1}} # 13
+    - {WAIT  : {ARVALID: 1, ARREADY: 1}} # 14
+    - {WAIT  : {ARVALID: 1, ARREADY: 1}} # 15
+  # - {WAIT  : {ARVALID: 1, ARREADY: 1}} # 16 (このコメントを外すと動かない)
+    - {READY : 1}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x03020100, ID: 0, LAST: 1}}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x07060504, ID: 0, LAST: 1}}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x0B0A0908, ID: 0, LAST: 1}}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x0F0E0D0C, ID: 0, LAST: 1}}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x13121110, ID: 0, LAST: 1}}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x17161514, ID: 0, LAST: 1}}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x1B1A1918, ID: 0, LAST: 1}}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x1F1E1D1C, ID: 0, LAST: 1}}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x23222120, ID: 0, LAST: 1}}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x27262524, ID: 0, LAST: 1}}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x2B2A2928, ID: 0, LAST: 1}}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x2F2E2D2C, ID: 0, LAST: 1}}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x33323130, ID: 0, LAST: 1}}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x37363534, ID: 0, LAST: 1}}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x3B3A3938, ID: 0, LAST: 1}}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x3F3E3D3C, ID: 0, LAST: 1}}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x43424140, ID: 0, LAST: 1}}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x47464544, ID: 0, LAST: 1}}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x4B4A4948, ID: 0, LAST: 1}}
+    - {WAIT  : {VALID: 1, READY: 1}}
+    - {CHECK : {RESP: OKAY, DATA: 0x4F4E4D4C, ID: 0, LAST: 1}}
+    - {READY : 0}
+---
+- MARCHAL:
+  - SAY: >
+       axi_slave_bfm test bench scenario 1.3 done
 ---
