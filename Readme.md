@@ -25,7 +25,24 @@ Vivado > Open Project > axi_slave_bfm_test/sim/vivado/axi_slave_bfm_test/axi_sla
 
 ####4. Vivado でシミュレーションを実行する####
 
-Run Simulation > Run Behavioral Simulation
+#####4.1 シナリオ１を実行する#####
+
+Flow Navigator > Simulation Settings > Simulation set: > sim_1    
+Flow Navigator > Run Simulation > Run Behavioral Simulation      
+
+または
+
+Flow Navigator > Project Manager > Sources > Hierarchy > sim_1 > Run Simulation > Run Behavioral Simulation 
+
+
+#####4.2 シナリオ２を実行する#####
+
+Flow Navigator > Simulation Settings > Simulation set: > sim_2    
+Flow Navigator > Run Simulation > Run Behavioral Simulation      
+
+または
+
+Flow Navigator > Project Manager > Sources > Hierarchy > sim_2 > Run Simulation > Run Behavioral Simulation 
 
 
 ###シミュレーションシナリオ###
