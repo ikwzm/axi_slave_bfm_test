@@ -1,8 +1,8 @@
 -----------------------------------------------------------------------------------
 --!     @file    axi_slave_bfm_test_benc.vhd
 --!     @brief   TEST BENCH axi_slave_BFM
---!     @version 0.0.2
---!     @date    2014/7/19
+--!     @version 0.0.3
+--!     @date    2014/7/20
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -52,6 +52,8 @@ entity  axi_slave_bfm_test_bench is
                           STRING  := string'("axi_slave_bfm_test");
         SCENARIO_FILE   : --! @brief シナリオファイルの名前.
                           STRING  := string'("axi_slave_bfm_test.snr");
+        RAM_INIT_FILE   : --! @brief axi_slave_BFM RAM初期化ファイルの名前.
+                          STRING  := string'("axi_slave_bfm_test.dat");
         DATA_WIDTH      : --! @brief データチャネルのビット幅.
                           integer := 32
     );
@@ -179,7 +181,8 @@ architecture MODEL of axi_slave_bfm_test_bench is
             WRITE_RANDOM_WAIT        : integer := 1;
             READ_RANDOM_WAIT         : integer := 0;
             READ_DATA_IS_INCREMENT   : integer := 0;
-            RANDOM_BVALID_WAIT       : integer := 0
+            RANDOM_BVALID_WAIT       : integer := 0;
+            RAM_INIT_FILE            : string
         );
         port(
             -- System Signals
@@ -378,7 +381,8 @@ begin
             WRITE_RANDOM_WAIT        => 1,
             READ_RANDOM_WAIT         => 0,
             READ_DATA_IS_INCREMENT   => 0,
-            RANDOM_BVALID_WAIT       => 0
+            RANDOM_BVALID_WAIT       => 0,
+            RAM_INIT_FILE            => RAM_INIT_FILE
         ) 
         port map(
             -- System Signals

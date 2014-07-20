@@ -1,14 +1,16 @@
 -----------------------------------------------------------------------------
 --
--- AXI Master用 Slave Bus Function Mode (BFM)
--- axi_slave_BFM.vhd
---
+-- AXI Master用 Slave Bus Function Mode (BFM)   by marsee
+-- axi_slave_BFM_initf.vhd
+-- 
 -----------------------------------------------------------------------------
 -- 2012/02/25 : S_AXI_AWBURST＝1 (INCR) にのみ対応、AWSIZE, ARSIZE = 000 (1byte), 001 (2bytes), 010 (4bytes) のみ対応。
 -- 2012/07/04 : READ_ONLY_TRANSACTION を追加。Read機能のみでも+1したデータを出力することが出来るように変更した。
 -- sync_fifo を使用したオーバーラップ対応版
 -- 2014/07/04 : M_AXIをスレーブに対応した名前のS_AXIに変更
 -- 2014/07/16 : Write Respose Channel に sync_fifo を使用した
+-- 2014/07/19 : RAM を初期化する初期化ファイルを追加(init_ram_data.txt)
+-- 2014/07/20 : RAM 初期化ファイル名を generic に追加
 --
 -- ライセンスは二条項BSDライセンス (2-clause BSD license)とします。
 --
@@ -40,6 +42,8 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_misc.all;
 use IEEE.math_real.all;
+use STD.textio.all;
+use IEEE.std_logic_textio.all;
 
 library work;
 use work.m_seq_bfm_pack.all;
@@ -49,23 +53,22 @@ use work.m_seq_bfm_pack.all;
 
 entity axi_slave_bfm is
   generic (
-    C_S_AXI_ID_WIDTH   	  	: integer := 1;
-    C_S_AXI_ADDR_WIDTH 	  	: integer := 32;
-    C_S_AXI_DATA_WIDTH 	  	: integer := 32;
-    C_S_AXI_AWUSER_WIDTH	: integer := 1;
-    C_S_AXI_ARUSER_WIDTH	: integer := 1;
-    C_S_AXI_WUSER_WIDTH 	: integer := 1;
-    C_S_AXI_RUSER_WIDTH 	: integer := 1;
-    C_S_AXI_BUSER_WIDTH  	: integer := 1;
-	
-	C_S_AXI_TARGET			: integer := 0;
-	C_OFFSET_WIDTH			: integer := 10; -- 割り当てるRAMのアドレスのビット幅
-	C_S_AXI_BURST_LEN		: integer := 256;
-	
-	WRITE_RANDOM_WAIT		: integer := 1; -- Write Transaction のデータ転送の時にランダムなWaitを発生させる=1, Waitしない=0
-	READ_RANDOM_WAIT		: integer := 0; -- Read Transaction のデータ転送の時にランダムなWaitを発生させる=1, Waitしない=0
-	READ_DATA_IS_INCREMENT	: integer := 0; -- ReadトランザクションでRAMの内容をReadする = 0（RAMにWriteしたものをReadする）、Readデータを+1する = 1（データは+1したデータをReadデータとして使用する
-        RANDOM_BVALID_WAIT		: integer := 0	-- Write Data Transaction が終了した後で、BVALID をランダムにWaitする = 1、BVALID をランダムにWaitしない = 0, 31 ~ 0 クロックのWait
+    C_S_AXI_ID_WIDTH   	        : integer := 1;
+    C_S_AXI_ADDR_WIDTH 	        : integer := 32;
+    C_S_AXI_DATA_WIDTH 	        : integer := 32;
+    C_S_AXI_AWUSER_WIDTH        : integer := 1;
+    C_S_AXI_ARUSER_WIDTH        : integer := 1;
+    C_S_AXI_WUSER_WIDTH         : integer := 1;
+    C_S_AXI_RUSER_WIDTH         : integer := 1;
+    C_S_AXI_BUSER_WIDTH         : integer := 1;
+    C_S_AXI_TARGET	        : integer := 0;
+    C_OFFSET_WIDTH	        : integer := 10; -- 割り当てるRAMのアドレスのビット幅
+    C_S_AXI_BURST_LEN           : integer := 256;
+    WRITE_RANDOM_WAIT           : integer := 1; -- Write Transaction のデータ転送の時にランダムなWaitを発生させる=1, Waitしない=0
+    READ_RANDOM_WAIT            : integer := 0; -- Read Transaction のデータ転送の時にランダムなWaitを発生させる=1, Waitしない=0
+    READ_DATA_IS_INCREMENT	: integer := 0; -- ReadトランザクションでRAMの内容をReadする = 0（RAMにWriteしたものをReadする）、Readデータを+1する = 1（データは+1したデータをReadデータとして使用する
+    RANDOM_BVALID_WAIT          : integer := 0;    -- Write Data Transaction が終了した後で、BVALID をランダムにWaitする = 1、BVALID をランダムにWaitしない = 0, 31 ~ 0 クロックのWait
+    RAM_INIT_FILE               : string := "init_ram_data.txt"    -- RAM の初期化ファイル名
     );
   port(
     -- System Signals
@@ -177,9 +180,21 @@ constant	RAD_FIFO_ADDR_HIGH		: natural := C_S_AXI_ADDR_WIDTH-1;
 constant	RAD_FIFO_ADDR_LOW		: natural := 0;
 
 -- RAMの生成
-constant	SLAVE_ADDR_NUMBER	: integer := 2**(C_OFFSET_WIDTH - ADD_INC_OFFSET);
-type ram_array_def is array (SLAVE_ADDR_NUMBER-1 downto 0) of std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
-signal ram_array : ram_array_def := (others => (others => '0'));
+constant    SLAVE_ADDR_NUMBER    : integer := 2**(C_OFFSET_WIDTH - ADD_INC_OFFSET);
+type ram_array_def is array (0 to SLAVE_ADDR_NUMBER-1) of std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+
+impure function InitRamFromFile (RamFileName : in string) return ram_array_def is
+    FILE RamFile : text is in RamFileName;
+    variable RamFileLine : line;
+    variable RAM : ram_array_def;
+begin
+    for I in ram_array_def'range loop
+        readline (RamFile, RamFileLine);
+        hread (RamFileLine, RAM(I));
+    end loop;
+    return RAM;
+end function;
+signal ram_array : ram_array_def := InitRamFromFile(RAM_INIT_FILE);
 
 -- for write transaction
 type write_address_state is (idle_wrad, awr_accept);
