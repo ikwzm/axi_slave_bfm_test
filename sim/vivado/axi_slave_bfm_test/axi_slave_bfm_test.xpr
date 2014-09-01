@@ -10,7 +10,7 @@
     <Option Name="Part" Val="xc7z020clg484-1"/>
     <Option Name="CompiledLibDir" Val="$PCACHEDIR/compile_simlib"/>
     <Option Name="BoardPart" Val="em.avnet.com:zed:part0:1.0"/>
-    <Option Name="ActiveSimSet" Val="sim_2"/>
+    <Option Name="ActiveSimSet" Val="sim_1"/>
     <Option Name="DefaultLib" Val="xil_defaultlib"/>
   </Configuration>
   <FileSets Version="1" Minor="31">
@@ -136,7 +136,7 @@
         <Option Name="TopModule" Val="axi_slave_bfm_test_bench"/>
         <Option Name="TopLib" Val="xil_defaultlib"/>
         <Option Name="TopAutoSet" Val="TRUE"/>
-        <Option Name="SimulationRunTime" Val="5000ns"/>
+        <Option Name="SimulationRunTime" Val="6000ns"/>
         <Option Name="SrcSet" Val="sources_1"/>
         <Generic Name="SCENARIO_FILE" Val="../../../../../../src/axi_slave_bfm_test_1.snr"/>
         <Generic Name="RAM_INIT_FILE" Val="../../../../../../src/axi_slave_bfm_test.dat"/>
