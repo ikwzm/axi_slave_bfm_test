@@ -182,7 +182,8 @@ architecture MODEL of axi_slave_bfm_test_bench is
             READ_RANDOM_WAIT         : integer := 0;
             READ_DATA_IS_INCREMENT   : integer := 0;
             RANDOM_BVALID_WAIT       : integer := 0;
-            RAM_INIT_FILE            : string
+            RAM_INIT_FILE            : string  ;
+            LOAD_RAM_INIT_FILE       : integer := 0 
         );
         port(
             -- System Signals
@@ -382,7 +383,8 @@ begin
             READ_RANDOM_WAIT         => 1,
             READ_DATA_IS_INCREMENT   => 0,
             RANDOM_BVALID_WAIT       => 0,
-            RAM_INIT_FILE            => RAM_INIT_FILE
+            RAM_INIT_FILE            => RAM_INIT_FILE,
+            LOAD_RAM_INIT_FILE       => 1
         ) 
         port map(
             -- System Signals
