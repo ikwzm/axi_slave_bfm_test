@@ -417,7 +417,7 @@
     - {WAIT  : 5}
     - {READY : 1}
     - {WAIT  : {VALID: 1, READY: 1}}
-    - {CHECK : {RESP: OKAY, DATA: 0x0B0A090A, ID: 0, LAST: 0}}
+    - {CHECK : {RESP: OKAY, DATA: 0x0B0A0908, ID: 0, LAST: 0}}
     - {READY : 0}
     - {WAIT  : {VALID: 1}, ON:1}
     - {WAIT  : 5}
@@ -441,7 +441,7 @@
     - {WAIT  : 5}
     - {READY : 1}
     - {WAIT  : {VALID: 1, READY: 1}}
-    - {CHECK : {RESP: OKAY, DATA: 0x1B1A191A, ID: 0, LAST: 0}}
+    - {CHECK : {RESP: OKAY, DATA: 0x1B1A1918, ID: 0, LAST: 0}}
     - {READY : 0}
     - {WAIT  : {VALID: 1}, ON:1}
     - {WAIT  : 5}
@@ -465,7 +465,7 @@
     - {WAIT  : 5}
     - {READY : 1}
     - {WAIT  : {VALID: 1, READY: 1}}
-    - {CHECK : {RESP: OKAY, DATA: 0x2B2A292A, ID: 0, LAST: 0}}
+    - {CHECK : {RESP: OKAY, DATA: 0x2B2A2928, ID: 0, LAST: 0}}
     - {READY : 0}
     - {WAIT  : {VALID: 1}, ON:1}
     - {WAIT  : 5}
@@ -489,7 +489,7 @@
     - {WAIT  : 5}
     - {READY : 1}
     - {WAIT  : {VALID: 1, READY: 1}}
-    - {CHECK : {RESP: OKAY, DATA: 0x3B3A393A, ID: 0, LAST: 0}}
+    - {CHECK : {RESP: OKAY, DATA: 0x3B3A3938, ID: 0, LAST: 0}}
     - {READY : 0}
     - {WAIT  : {VALID: 1}, ON:1}
     - {WAIT  : 5}
