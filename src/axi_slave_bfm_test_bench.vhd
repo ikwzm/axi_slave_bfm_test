@@ -379,7 +379,7 @@ begin
             C_OFFSET_WIDTH           => 10,
             C_S_AXI_BURST_LEN        => 256,
             WRITE_RANDOM_WAIT        => 1,
-            READ_RANDOM_WAIT         => 0,
+            READ_RANDOM_WAIT         => 1,
             READ_DATA_IS_INCREMENT   => 0,
             RANDOM_BVALID_WAIT       => 0,
             RAM_INIT_FILE            => RAM_INIT_FILE
