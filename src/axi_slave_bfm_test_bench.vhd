@@ -548,7 +548,6 @@ begin
         WRITE(L,T & "  Mismatch : ");WRITE(L,M_REPORT.mismatch_count);WRITELINE(OUTPUT,L);
         WRITE(L,T & "  Warning  : ");WRITE(L,M_REPORT.warning_count );WRITELINE(OUTPUT,L);
         WRITE(L,T);                                                   WRITELINE(OUTPUT,L);
-        report "REPORT Mismatch !!" severity FAILURE;
         assert FALSE report "Simulation complete." severity FAILURE;
         wait;
     end process;
