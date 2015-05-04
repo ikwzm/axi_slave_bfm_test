@@ -3,7 +3,7 @@ axi_slave_bfm test
 
 ###概要###
 
-このプロジェクトは FPGAの部屋(http://marsee101.blog19.fc2.com )で活躍されている marsee さんが作った axi_slave_BFM.vhd(http://marsee101.blog19.fc2.com/blog-entry-2644.html) を Vivado 2014.2 でシミュレーションするためのものです。
+このプロジェクトは FPGAの部屋(http://marsee101.blog19.fc2.com )で活躍されている marsee さんが作った axi_slave_BFM.vhd(http://marsee101.blog19.fc2.com/blog-entry-2644.html) を Vivado でシミュレーションするためのものです。
 
 ###シミュレーション方法###
 
@@ -19,31 +19,33 @@ git submodule init
 
 git submodule update
 
-####3. Vivado でプロジェクトを開く####
+####3. Vivado プロジェクトを作る ####
 
-Vivado > Open Project > axi_slave_bfm_test/sim/vivado/axi_slave_bfm_test/axi_slave_bfm_test.xpr
+#####3.1 シナリオ１実行用プロジェクトを作る#####
+
+cd sim/vivado/axi_slave_bfm_test
+
+Vivado > Tools > Run Tcl Script > create_axi_slave_bfm_test_1.tcl
+
+#####3.2 シナリオ２実行用プロジェクトを作る#####
+
+cd sim/vivado/axi_slave_bfm_test
+
+Vivado > Tools > Run Tcl Script > create_axi_slave_bfm_test_2.tcl
 
 ####4. Vivado でシミュレーションを実行する####
 
 #####4.1 シナリオ１を実行する#####
 
-Flow Navigator > Simulation Settings > Simulation set: > sim_1    
+Vivado > Open Project > axi_slave_bfm_test_1.xpr
+
 Flow Navigator > Run Simulation > Run Behavioral Simulation      
-
-または
-
-Flow Navigator > Project Manager > Sources > Hierarchy > sim_1 > Run Simulation > Run Behavioral Simulation 
-
 
 #####4.2 シナリオ２を実行する#####
 
-Flow Navigator > Simulation Settings > Simulation set: > sim_2    
+Vivado > Open Project > axi_slave_bfm_test_2.xpr
+
 Flow Navigator > Run Simulation > Run Behavioral Simulation      
-
-または
-
-Flow Navigator > Project Manager > Sources > Hierarchy > sim_2 > Run Simulation > Run Behavioral Simulation 
-
 
 ###シミュレーションシナリオ###
 
