@@ -3,7 +3,7 @@ axi_slave_bfm test
 
 ###概要###
 
-このプロジェクトは FPGAの部屋(http://marsee101.blog19.fc2.com )で活躍されている marsee さんが作った axi_slave_BFM.vhd(http://marsee101.blog19.fc2.com/blog-entry-2644.html) を Vivado でシミュレーションするためのものです。
+このプロジェクトは FPGAの部屋(http://marsee101.blog19.fc2.com )で活躍されている marsee さんが作った axi_slave_BFM.vhd(http://marsee101.blog19.fc2.com/blog-entry-3510.html) または axi_slave_BFM.v(http://marsee101.blog19.fc2.com/blog-entry-3509.html)を Vivado でシミュレーションするためのものです。
 
 ###シミュレーション方法###
 
@@ -33,6 +33,12 @@ cd sim/vivado/axi_slave_bfm_test
 
 Vivado > Tools > Run Tcl Script > create_axi_slave_bfm_test_2.tcl
 
+#####3.3 axi_slave_BFM.v の Post-Synthesis シミュレーション実行用プロジェクトを作る#####
+
+cd sim/vivado/axi_slave_bfm_test
+
+Vivado > Tools > Run Tcl Script > create_axi_slave_bfm_v_post_synth_test_1.tcl
+
 ####4. Vivado でシミュレーションを実行する####
 
 #####4.1 シナリオ１を実行する#####
@@ -46,6 +52,16 @@ Flow Navigator > Run Simulation > Run Behavioral Simulation
 Vivado > Open Project > axi_slave_bfm_test_2.xpr
 
 Flow Navigator > Run Simulation > Run Behavioral Simulation      
+
+#####4.3 axi_slave_BFM.v の Post-Synthesis シミュレーションを実行する#####
+
+Vivado > Open Project > axi_slave_bfm_v_post_synth_test_1.xpr
+
+Flow Navigator > Run Synthesis
+
+Flow Navigator > Run Implementation
+
+Flow Navigator > Run Simulation > Run Post-Implementation Functional Simulation
 
 ###シミュレーションシナリオ###
 

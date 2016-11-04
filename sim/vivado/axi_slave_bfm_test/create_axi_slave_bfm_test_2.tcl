@@ -50,17 +50,15 @@ lappend dummy_plug_src_list {../../../Dummy_Plug/src/main/vhdl/axi4/axi4_channel
 lappend dummy_plug_src_list {../../../Dummy_Plug/src/main/vhdl/axi4/axi4_master_player.vhd}
 lappend dummy_plug_src_list {../../../Dummy_Plug/src/main/vhdl/axi4/axi4_signal_printer.vhd}
 
-set work_src_list [list]
-lappend work_src_list       {../../../src/sync_fifo.vhd}
-lappend work_src_list       {../../../src/axi_slave_BFM.vhd}
-lappend work_src_list       {../../../src/axi_slave_bfm_test_bench.vhd}
-
 set generic_list [list]
 lappend generic_list        {SCENARIO_FILE="../../../../../../src/axi_slave_bfm_test_2.snr"}
 lappend generic_list        {RAM_INIT_FILE="../../../../../../src/axi_slave_bfm_test_2.dat"}
 
-add_files -fileset sim_1 -norecurse $dummy_plug_src_list
-add_files -fileset sim_1 -norecurse $work_src_list
+add_files -fileset sim_1     -norecurse $dummy_plug_src_list
+add_files -fileset sim_1     -norecurse {../../../src/axi_slave_bfm_test_bench.vhd}
+add_files -fileset sources_1 -norecurse {../../../src/axi_slave_BFM.vhd}
+add_files -fileset sources_1 -norecurse {../../../src/sync_fifo.vhd}
+
 set_property library Dummy_Plug [get_files $dummy_plug_src_list]
 set_property generic $generic_list [get_filesets sim_1]
 set_property -name {xsim.simulate.runtime} -value {600000ns} -objects [get_filesets sim_1]

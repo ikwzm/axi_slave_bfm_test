@@ -166,80 +166,80 @@ architecture MODEL of axi_slave_bfm_test_bench is
     -- 
     -------------------------------------------------------------------------------
     component axi_slave_bfm
-        generic (
-            C_S_AXI_ID_WIDTH         : integer := 1;
-            C_S_AXI_ADDR_WIDTH       : integer := 32;
-            C_S_AXI_DATA_WIDTH       : integer := 32;
-            C_S_AXI_AWUSER_WIDTH     : integer := 1;
-            C_S_AXI_ARUSER_WIDTH     : integer := 1;
-            C_S_AXI_WUSER_WIDTH      : integer := 1;
-            C_S_AXI_RUSER_WIDTH      : integer := 1;
-            C_S_AXI_BUSER_WIDTH      : integer := 1;
-            C_S_AXI_TARGET           : integer := 0;
-            C_OFFSET_WIDTH           : integer := 10;
-            C_S_AXI_BURST_LEN        : integer := 256;
-            WRITE_RANDOM_WAIT        : integer := 1;
-            READ_RANDOM_WAIT         : integer := 0;
-            READ_DATA_IS_INCREMENT   : integer := 0;
-            RANDOM_BVALID_WAIT       : integer := 0;
-            AWREADY_IS_USUALLY_HIGH  : integer := 1;
-            ARREADY_IS_USUALLY_HIGH  : integer := 1 
-        );
+    --  generic (
+    --      C_S_AXI_ID_WIDTH         : integer := 1;
+    --      C_S_AXI_ADDR_WIDTH       : integer := 32;
+    --      C_S_AXI_DATA_WIDTH       : integer := 32;
+    --      C_S_AXI_AWUSER_WIDTH     : integer := 1;
+    --      C_S_AXI_ARUSER_WIDTH     : integer := 1;
+    --      C_S_AXI_WUSER_WIDTH      : integer := 1;
+    --      C_S_AXI_RUSER_WIDTH      : integer := 1;
+    --      C_S_AXI_BUSER_WIDTH      : integer := 1;
+    --      C_S_AXI_TARGET           : integer := 0;
+    --      C_OFFSET_WIDTH           : integer := 10;
+    --      C_S_AXI_BURST_LEN        : integer := 256;
+    --      WRITE_RANDOM_WAIT        : integer := 1;
+    --      READ_RANDOM_WAIT         : integer := 0;
+    --      READ_DATA_IS_INCREMENT   : integer := 0;
+    --      RANDOM_BVALID_WAIT       : integer := 0;
+    --      AWREADY_IS_USUALLY_HIGH  : integer := 1;
+    --      ARREADY_IS_USUALLY_HIGH  : integer := 1 
+    --  );
         port(
             -- System Signals
             ACLK           : in  std_logic;
             ARESETN        : in  std_logic;
 
             -- Master Interface Write Address Ports
-            S_AXI_AWID     : in  std_logic_vector(C_S_AXI_ID_WIDTH-1 downto 0);
-            S_AXI_AWADDR   : in  std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);
-            S_AXI_AWLEN    : in  std_logic_vector(8-1 downto 0);
-            S_AXI_AWSIZE   : in  std_logic_vector(3-1 downto 0);
-            S_AXI_AWBURST  : in  std_logic_vector(2-1 downto 0);
+            S_AXI_AWID     : in  std_logic_vector( 1-1 downto 0);
+            S_AXI_AWADDR   : in  std_logic_vector(32-1 downto 0);
+            S_AXI_AWLEN    : in  std_logic_vector( 8-1 downto 0);
+            S_AXI_AWSIZE   : in  std_logic_vector( 3-1 downto 0);
+            S_AXI_AWBURST  : in  std_logic_vector( 2-1 downto 0);
             -- S_AXI_AWLOCK   : in  std_logic_vector(2-1 downto 0);
-            S_AXI_AWLOCK   : in  std_logic_vector(1 downto 0);
-            S_AXI_AWCACHE  : in  std_logic_vector(4-1 downto 0);
-            S_AXI_AWPROT   : in  std_logic_vector(3-1 downto 0);
-            S_AXI_AWQOS    : in  std_logic_vector(4-1 downto 0);
-            S_AXI_AWUSER   : in  std_logic_vector(C_S_AXI_AWUSER_WIDTH-1 downto 0);
+            S_AXI_AWLOCK   : in  std_logic_vector( 1 downto 0);
+            S_AXI_AWCACHE  : in  std_logic_vector( 4-1 downto 0);
+            S_AXI_AWPROT   : in  std_logic_vector( 3-1 downto 0);
+            S_AXI_AWQOS    : in  std_logic_vector( 4-1 downto 0);
+            S_AXI_AWUSER   : in  std_logic_vector( 1-1 downto 0);
             S_AXI_AWVALID  : in  std_logic;
             S_AXI_AWREADY  : out std_logic;
 
             -- Master Interface Write Data Ports
-            S_AXI_WDATA    : in  std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
-            S_AXI_WSTRB    : in  std_logic_vector(C_S_AXI_DATA_WIDTH/8-1 downto 0);
+            S_AXI_WDATA    : in  std_logic_vector(32-1 downto 0);
+            S_AXI_WSTRB    : in  std_logic_vector( 4-1 downto 0);
             S_AXI_WLAST    : in  std_logic;
-            S_AXI_WUSER    : in  std_logic_vector(C_S_AXI_WUSER_WIDTH-1 downto 0);
+            S_AXI_WUSER    : in  std_logic_vector( 1-1 downto 0);
             S_AXI_WVALID   : in  std_logic;
             S_AXI_WREADY   : out std_logic;
         
             -- Master Interface Write Response Ports
-            S_AXI_BID      : out std_logic_vector(C_S_AXI_ID_WIDTH-1 downto 0);
-            S_AXI_BRESP    : out std_logic_vector(2-1 downto 0);
-            S_AXI_BUSER    : out std_logic_vector(C_S_AXI_BUSER_WIDTH-1 downto 0);
+            S_AXI_BID      : out std_logic_vector( 1-1 downto 0);
+            S_AXI_BRESP    : out std_logic_vector( 2-1 downto 0);
+            S_AXI_BUSER    : out std_logic_vector( 1-1 downto 0);
             S_AXI_BVALID   : out std_logic;
             S_AXI_BREADY   : in  std_logic;
 
             -- Master Interface Read Address Ports
-            S_AXI_ARID     : in  std_logic_vector(C_S_AXI_ID_WIDTH-1 downto 0);
-            S_AXI_ARADDR   : in  std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);
-            S_AXI_ARLEN    : in  std_logic_vector(8-1 downto 0);
-            S_AXI_ARSIZE   : in  std_logic_vector(3-1 downto 0);
-            S_AXI_ARBURST  : in  std_logic_vector(2-1 downto 0);
-            S_AXI_ARLOCK   : in  std_logic_vector(2-1 downto 0);
-            S_AXI_ARCACHE  : in  std_logic_vector(4-1 downto 0);
-            S_AXI_ARPROT   : in  std_logic_vector(3-1 downto 0);
-            S_AXI_ARQOS    : in  std_logic_vector(4-1 downto 0);
-            S_AXI_ARUSER   : in  std_logic_vector(C_S_AXI_ARUSER_WIDTH-1 downto 0);
+            S_AXI_ARID     : in  std_logic_vector( 1-1 downto 0);
+            S_AXI_ARADDR   : in  std_logic_vector(32-1 downto 0);
+            S_AXI_ARLEN    : in  std_logic_vector( 8-1 downto 0);
+            S_AXI_ARSIZE   : in  std_logic_vector( 3-1 downto 0);
+            S_AXI_ARBURST  : in  std_logic_vector( 2-1 downto 0);
+            S_AXI_ARLOCK   : in  std_logic_vector( 2-1 downto 0);
+            S_AXI_ARCACHE  : in  std_logic_vector( 4-1 downto 0);
+            S_AXI_ARPROT   : in  std_logic_vector( 3-1 downto 0);
+            S_AXI_ARQOS    : in  std_logic_vector( 4-1 downto 0);
+            S_AXI_ARUSER   : in  std_logic_vector( 1-1 downto 0);
             S_AXI_ARVALID  : in  std_logic;
             S_AXI_ARREADY  : out std_logic;
 
             -- Master Interface Read Data Ports
-            S_AXI_RID      : out std_logic_vector(C_S_AXI_ID_WIDTH-1 downto 0);
-            S_AXI_RDATA    : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
-            S_AXI_RRESP    : out std_logic_vector(2-1 downto 0);
+            S_AXI_RID      : out std_logic_vector( 1-1 downto 0);
+            S_AXI_RDATA    : out std_logic_vector(32-1 downto 0);
+            S_AXI_RRESP    : out std_logic_vector( 2-1 downto 0);
             S_AXI_RLAST    : out std_logic;
-            S_AXI_RUSER    : out std_logic_vector(C_S_AXI_RUSER_WIDTH-1 downto 0);
+            S_AXI_RUSER    : out std_logic_vector( 1-1 downto 0);
             S_AXI_RVALID   : out std_logic;
             S_AXI_RREADY   : in  std_logic
             );
@@ -367,25 +367,25 @@ begin
     -- 
     ------------------------------------------------------------------------------
     DUT: axi_slave_bfm
-        generic map (
-            C_S_AXI_ID_WIDTH         => WIDTH.ID,
-            C_S_AXI_ADDR_WIDTH       => WIDTH.ARADDR,
-            C_S_AXI_DATA_WIDTH       => WIDTH.RDATA,
-            C_S_AXI_AWUSER_WIDTH     => WIDTH.AWUSER,
-            C_S_AXI_ARUSER_WIDTH     => WIDTH.ARUSER,
-            C_S_AXI_WUSER_WIDTH      => WIDTH.WUSER,
-            C_S_AXI_RUSER_WIDTH      => WIDTH.RUSER,
-            C_S_AXI_BUSER_WIDTH      => WIDTH.BUSER,
-            C_S_AXI_TARGET           => 0,
-            C_OFFSET_WIDTH           => 10,
-            C_S_AXI_BURST_LEN        => 256,
-            WRITE_RANDOM_WAIT        => 1,
-            READ_RANDOM_WAIT         => 1,
-            READ_DATA_IS_INCREMENT   => 0,
-            RANDOM_BVALID_WAIT       => 0,
-            AWREADY_IS_USUALLY_HIGH  => 1,
-            ARREADY_IS_USUALLY_HIGH  => 1
-        ) 
+    --  generic map (
+    --      C_S_AXI_ID_WIDTH         => WIDTH.ID,
+    --      C_S_AXI_ADDR_WIDTH       => WIDTH.ARADDR,
+    --      C_S_AXI_DATA_WIDTH       => WIDTH.RDATA,
+    --      C_S_AXI_AWUSER_WIDTH     => WIDTH.AWUSER,
+    --      C_S_AXI_ARUSER_WIDTH     => WIDTH.ARUSER,
+    --      C_S_AXI_WUSER_WIDTH      => WIDTH.WUSER,
+    --      C_S_AXI_RUSER_WIDTH      => WIDTH.RUSER,
+    --      C_S_AXI_BUSER_WIDTH      => WIDTH.BUSER,
+    --      C_S_AXI_TARGET           => 0,
+    --      C_OFFSET_WIDTH           => 10,
+    --      C_S_AXI_BURST_LEN        => 256,
+    --      WRITE_RANDOM_WAIT        => 1,
+    --      READ_RANDOM_WAIT         => 1,
+    --      READ_DATA_IS_INCREMENT   => 0,
+    --      RANDOM_BVALID_WAIT       => 0,
+    --      AWREADY_IS_USUALLY_HIGH  => 1,
+    --      ARREADY_IS_USUALLY_HIGH  => 1
+    --  ) 
         port map(
             -- System Signals
             ACLK           => ACLK           , -- In  :

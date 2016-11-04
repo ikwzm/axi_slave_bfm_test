@@ -1,19 +1,18 @@
 -----------------------------------------------------------------------------
 --
--- AXI Master用 Slave Bus Function Mode (BFM)   by marsee
--- axi_slave_BFM_initf.vhd
--- 
+-- AXI Master用 Slave Bus Function Mode (BFM)
+-- axi_slave_BFM.vhd
+--
 -----------------------------------------------------------------------------
 -- 2012/02/25 : S_AXI_AWBURST＝1 (INCR) にのみ対応、AWSIZE, ARSIZE = 000 (1byte), 001 (2bytes), 010 (4bytes) のみ対応。
 -- 2012/07/04 : READ_ONLY_TRANSACTION を追加。Read機能のみでも+1したデータを出力することが出来るように変更した。
 -- sync_fifo を使用したオーバーラップ対応版
 -- 2014/07/04 : M_AXIをスレーブに対応した名前のS_AXIに変更
 -- 2014/07/16 : Write Respose Channel に sync_fifo を使用した
--- 2014/07/19 : RAM を初期化する初期化ファイルを追加(init_ram_data.txt)
--- 2014/07/20 : RAM 初期化ファイル名を generic に追加
 -- 2014/08/31 : READ_RANDOM_WAIT=1 の時に、S_AXI_RREADY が S_AXI_RVALID に依存するバグをフィック。
 --              WRITE_RANDOM_WAIT=1 の時に、S_AXI_WVALID が S_AXI_WREADY に依存するバグをフィック。
---              LOAD_RAM_INIT_FILE パラメータを追加
+--
+-- 2016/07/03 : AWREADY_IS_USUALLY_HIGH　と ARREADY_IS_USUALLY_HIGH　の2つのパラメータを追加 by marsee
 --
 -- ライセンスは二条項BSDライセンス (2-clause BSD license)とします。
 --
@@ -46,8 +45,6 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_misc.all;
 use IEEE.math_real.all;
-use STD.textio.all;
-use IEEE.std_logic_textio.all;
 
 library work;
 use work.m_seq_bfm_pack.all;
@@ -74,8 +71,8 @@ entity axi_slave_bfm is
     READ_RANDOM_WAIT        : integer := 0; -- Read Transaction のデータ転送の時にランダムなWaitを発生させる=1, Waitしない=0
     READ_DATA_IS_INCREMENT    : integer := 0; -- ReadトランザクションでRAMの内容をReadする = 0（RAMにWriteしたものをReadする）、Readデータを+1する = 1（データは+1したデータをReadデータとして使用する
     RANDOM_BVALID_WAIT        : integer := 0;    -- Write Data Transaction が終了した後で、BVALID をランダムにWaitする = 1、BVALID をランダムにWaitしない = 0, 31 ~ 0 クロックのWait
-    RAM_INIT_FILE            : string := "init_ram_data.txt"; -- RAM の初期化ファイル名
-    LOAD_RAM_INIT_FILE        : integer := 0 -- RAM_INIT_FILE をLoadする - 1, Load しない - 0
+    AWREADY_IS_USUALLY_HIGH    : integer := 1; -- AWRAEDY は通常はLow=0, High=1
+    ARREADY_IS_USUALLY_HIGH : integer := 1  -- AWRAEDY は通常はLow=0, High=1
     );
   port(
     -- System Signals
@@ -188,22 +185,8 @@ constant    RAD_FIFO_ADDR_LOW        : natural := 0;
 
 -- RAMの生成
 constant    SLAVE_ADDR_NUMBER    : integer := 2**(C_OFFSET_WIDTH - ADD_INC_OFFSET);
-type ram_array_def is array (0 to SLAVE_ADDR_NUMBER-1) of std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
-
-impure function InitRamFromFile (RamFileName : in string) return ram_array_def is
-    FILE RamFile : text is in RamFileName;
-    variable RamFileLine : line;
-    variable RAM : ram_array_def;
-begin
-    for I in ram_array_def'range loop
-        if (LOAD_RAM_INIT_FILE=1) then
-            readline (RamFile, RamFileLine);
-            hread (RamFileLine, RAM(I));
-        end if;
-    end loop;
-    return RAM;
-end function;
-signal ram_array : ram_array_def := InitRamFromFile(RAM_INIT_FILE);
+type ram_array_def is array (SLAVE_ADDR_NUMBER-1 downto 0) of std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+signal ram_array : ram_array_def := (others => (others => '0'));
 
 -- for write transaction
 type write_address_state is (idle_wrad, awr_accept);
@@ -224,6 +207,7 @@ signal cdc_we : std_logic;
 signal wad_fifo_full, wad_fifo_empty : std_logic;
 signal wad_fifo_almost_full, wad_fifo_almost_empty : std_logic;
 signal wad_fifo_rd_en : std_logic;
+signal wad_fifo_wr_en : std_logic;
 signal wad_fifo_din : std_logic_vector(WAD_FIFO_WIDTH-1 downto 0);
 signal wad_fifo_dout : std_logic_vector(WAD_FIFO_WIDTH-1 downto 0);
 signal m_seq16_wr_res    : std_logic_vector(15 downto 0);
@@ -257,6 +241,7 @@ signal reset_1d, reset_2d, reset : std_logic := '1';
 signal rad_fifo_full, rad_fifo_empty : std_logic;
 signal rad_fifo_almost_full, rad_fifo_almost_empty : std_logic;
 signal rad_fifo_rd_en : std_logic;
+signal rad_fifo_wr_en : std_logic;
 signal rad_fifo_din : std_logic_vector(RAD_FIFO_WIDTH-1 downto 0);
 signal rad_fifo_dout : std_logic_vector(RAD_FIFO_WIDTH-1 downto 0);
 
@@ -308,10 +293,11 @@ begin
             end if;
         end if;
     end process;
-    S_AXI_AWREADY <= awready;
+    S_AXI_AWREADY <= not wad_fifo_full when AWREADY_IS_USUALLY_HIGH=1 else awready;
     
     -- S_AXI_AWID & S_AXI_AWBURST & S_AXI_AWSIZE & S_AXI_AWADDR　を保存しておく同期FIFO
     wad_fifo_din <= (S_AXI_AWID & S_AXI_AWBURST & S_AXI_AWSIZE & S_AXI_AWADDR);
+    wad_fifo_wr_en <= (S_AXI_AWVALID and (not wad_fifo_full)) when AWREADY_IS_USUALLY_HIGH=1 else awready;
 
     wad_fifo : sync_fifo generic map(
         C_MEMORY_SIZE => AD_FIFO_DEPTH,
@@ -319,7 +305,7 @@ begin
     ) port map (
         clk =>            ACLK,
         rst =>            reset,
-        wr_en =>         awready,
+        wr_en =>         wad_fifo_wr_en,
         din =>            wad_fifo_din,
         full =>            wad_fifo_full,
         almost_full =>    wad_fifo_almost_full,
@@ -566,10 +552,11 @@ begin
             end if;
         end if;
     end process;
-    S_AXI_ARREADY <= arready;
+    S_AXI_ARREADY <= not rad_fifo_full when ARREADY_IS_USUALLY_HIGH=1 else arready;
 
     -- S_AXI_ARID & S_AXI_ARBURST & S_AXI_ARSIZE & S_AXI_ARLEN & S_AXI_ARADDR を保存しておく同期FIFO
     rad_fifo_din <= (S_AXI_ARID & S_AXI_ARBURST & S_AXI_ARSIZE & S_AXI_ARLEN & S_AXI_ARADDR);
+    rad_fifo_wr_en <= (S_AXI_ARVALID and (not rad_fifo_full)) when ARREADY_IS_USUALLY_HIGH=1 else arready;
 
     rad_fifo : sync_fifo generic map (
         C_MEMORY_SIZE =>    AD_FIFO_DEPTH,
@@ -577,7 +564,7 @@ begin
     ) port map (
         clk =>            ACLK,
         rst =>            reset,
-        wr_en =>        arready,
+        wr_en =>        rad_fifo_wr_en,
         din =>             rad_fifo_din,
         full =>            rad_fifo_full,
         almost_full =>    rad_fifo_almost_full,

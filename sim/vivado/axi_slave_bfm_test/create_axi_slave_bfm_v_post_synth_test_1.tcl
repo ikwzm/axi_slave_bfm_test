@@ -2,8 +2,8 @@
 # create_project.tcl  Tcl script for creating project
 #
 set project_directory       [file dirname [info script]]
-set project_name            "axi_slave_bfm_test_1"
-set device_parts            "xc7z010clg400-1"
+set project_name            "axi_slave_bfm_v_post_synth_test_1"
+set device_parts            "xc7z020clg484-1"
 #
 # Create project
 #
@@ -51,13 +51,13 @@ lappend dummy_plug_src_list {../../../Dummy_Plug/src/main/vhdl/axi4/axi4_master_
 lappend dummy_plug_src_list {../../../Dummy_Plug/src/main/vhdl/axi4/axi4_signal_printer.vhd}
 
 set generic_list [list]
-lappend generic_list        {SCENARIO_FILE="../../../../../../src/axi_slave_bfm_test_1.snr"}
-lappend generic_list        {RAM_INIT_FILE="../../../../../../src/axi_slave_bfm_test.dat"}
+lappend generic_list        {SCENARIO_FILE="../../../../../../../src/axi_slave_bfm_test_1.snr"}
+lappend generic_list        {RAM_INIT_FILE="../../../../../../../src/axi_slave_bfm_test.dat"}
 
 add_files -fileset sim_1     -norecurse $dummy_plug_src_list
-add_files -fileset sim_1     -norecurse {../../../src/axi_slave_bfm_test_bench.vhd}
-add_files -fileset sources_1 -norecurse {../../../src/axi_slave_BFM.vhd}
-add_files -fileset sources_1 -norecurse {../../../src/sync_fifo.vhd}
+add_files -fileset sim_1     -norecurse {../../../src/axi_slave_bfm_test_bench_post_synth.vhd}
+add_files -fileset sources_1 -norecurse {../../../src/axi_slave_BFM.v}
+add_files -fileset sources_1 -norecurse {../../../src/sync_fifo.v}
 
 set_property library Dummy_Plug [get_files $dummy_plug_src_list]
 set_property generic $generic_list [get_filesets sim_1]
