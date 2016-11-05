@@ -5,9 +5,10 @@ set project_directory       [file dirname [info script]]
 set project_name            "axi_slave_bfm_test_2"
 set device_parts            "xc7z010clg400-1"
 #
-# Create project
+# Create project and change current directory
 #
 create_project -force $project_name $project_directory
+cd $project_directory
 #
 # Set project properties
 #
