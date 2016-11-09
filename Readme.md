@@ -27,7 +27,13 @@ cd sim/vivado/axi_slave_bfm_test
 
 Vivado > Tools > Run Tcl Script > create_axi_slave_bfm_test_1.tcl
 
-#####3.2 axi_slave_BFM.v の Post-Synthesis シミュレーション実行用プロジェクトを作る#####
+#####3.2 シナリオ２実行用プロジェクトを作る#####
+
+cd sim/vivado/axi_slave_bfm_test
+
+Vivado > Tools > Run Tcl Script > create_axi_slave_bfm_test_2.tcl
+
+#####3.3 axi_slave_BFM.v の Post-Synthesis シミュレーション実行用プロジェクトを作る#####
 
 cd sim/vivado/axi_slave_bfm_test
 
@@ -41,7 +47,13 @@ Vivado > Open Project > axi_slave_bfm_test_1.xpr
 
 Flow Navigator > Run Simulation > Run Behavioral Simulation      
 
-#####4.2 axi_slave_BFM.v の Post-Synthesis シミュレーションを実行する#####
+#####4.2 シナリオ２を実行する#####
+
+Vivado > Open Project > axi_slave_bfm_test_2.xpr
+
+Flow Navigator > Run Simulation > Run Behavioral Simulation      
+
+#####4.3 axi_slave_BFM.v の Post-Synthesis シミュレーションを実行する#####
 
 Vivado > Open Project > axi_slave_bfm_v_post_synth_test_1.xpr
 

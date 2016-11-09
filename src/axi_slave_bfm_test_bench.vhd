@@ -1,12 +1,12 @@
 -----------------------------------------------------------------------------------
 --!     @file    axi_slave_bfm_test_benc.vhd
 --!     @brief   TEST BENCH axi_slave_BFM
---!     @version 0.0.4
---!     @date    2016/11/4
+--!     @version 0.0.5
+--!     @date    2016/11/9
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
---      Copyright (C) 2012-2014 Ichiro Kawazome
+--      Copyright (C) 2012-2016 Ichiro Kawazome
 --      All rights reserved.
 --
 --      Redistribution and use in source and binary forms, with or without
@@ -182,6 +182,8 @@ architecture MODEL of axi_slave_bfm_test_bench is
             READ_RANDOM_WAIT         : integer := 0;
             READ_DATA_IS_INCREMENT   : integer := 0;
             RANDOM_BVALID_WAIT       : integer := 0;
+            RAM_INIT_FILE            : string  := "init_ram_data.data";
+            LOAD_RAM_INIT_FILE       : integer := 0;
             AWREADY_IS_USUALLY_HIGH  : integer := 1;
             ARREADY_IS_USUALLY_HIGH  : integer := 1 
         );
@@ -383,6 +385,8 @@ begin
             READ_RANDOM_WAIT         => 1,
             READ_DATA_IS_INCREMENT   => 0,
             RANDOM_BVALID_WAIT       => 0,
+            RAM_INIT_FILE            => RAM_INIT_FILE,
+            LOAD_RAM_INIT_FILE       => 1,
             AWREADY_IS_USUALLY_HIGH  => 1,
             ARREADY_IS_USUALLY_HIGH  => 1
         ) 
