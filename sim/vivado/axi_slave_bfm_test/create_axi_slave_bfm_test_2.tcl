@@ -56,11 +56,14 @@ lappend work_src_list       {../../../src/axi_slave_BFM.vhd}
 lappend work_src_list       {../../../src/axi_slave_bfm_test_bench.vhd}
 
 set generic_list [list]
-lappend generic_list        {SCENARIO_FILE="../../../../../../src/axi_slave_bfm_test_2.snr"}
-lappend generic_list        {RAM_INIT_FILE="../../../../../../src/axi_slave_bfm_test_2.dat"}
+lappend generic_list        {SCENARIO_FILE="axi_slave_bfm_test_2.snr"}
+lappend generic_list        {RAM_INIT_FILE="axi_slave_bfm_test_2.dat"}
 
 add_files -fileset sim_1 -norecurse $dummy_plug_src_list
 add_files -fileset sim_1 -norecurse $work_src_list
+add_files -fileset sim_1 -norecurse "../../../src/axi_slave_bfm_test_2.snr"
+add_files -fileset sim_1 -norecurse "../../../src/axi_slave_bfm_test_2.dat"
+
 set_property library Dummy_Plug [get_files $dummy_plug_src_list]
 set_property generic $generic_list [get_filesets sim_1]
 set_property -name {xsim.simulate.runtime} -value {600000ns} -objects [get_filesets sim_1]
